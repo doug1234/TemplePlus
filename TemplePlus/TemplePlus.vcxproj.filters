@@ -342,6 +342,7 @@
     <ClCompile Include="mod_support.cpp">
       <Filter>Mods and Fixes</Filter>
     </ClCompile>
+    <ClCompile Include="gamesystems\aas_facade.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="movies.h" />

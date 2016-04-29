@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\temple\aas.h" />
     <ClInclude Include="include\temple\aasrenderer.h" />
     <ClInclude Include="include\temple\dll.h" />
     <ClInclude Include="include\temple\meshes.h" />
@@ -27,12 +28,15 @@
     <ClInclude Include="include\temple\soundsystem.h" />
     <ClInclude Include="include\temple\vfs.h" />
     <ClInclude Include="include\tig\texture.h" />
+    <ClInclude Include="src\meshes_rewrite.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\aasrenderer.cpp" />
     <ClCompile Include="src\dll.cpp" />
     <ClCompile Include="src\materials.cpp" />
     <ClCompile Include="src\meshes.cpp" />
+    <ClCompile Include="src\meshes_animfallbacks.cpp" />
+    <ClCompile Include="src\meshes_rewrite.cpp" />
     <ClCompile Include="src\moviesystem.cpp" />
     <ClCompile Include="src\soundsystem.cpp" />
     <ClCompile Include="src\vfs.cpp" />

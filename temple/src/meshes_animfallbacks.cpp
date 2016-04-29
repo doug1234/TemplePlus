@@ -1,5 +1,5 @@
 
-#include "infrastructure/meshes.h"
+#include "temple/meshes.h"
 
 // True if the weapon has to fallback on both hands
 static bool IsWeapon2hFallbacak(gfx::WeaponAnimType weaponType) {

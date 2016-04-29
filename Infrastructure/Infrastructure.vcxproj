@@ -249,8 +249,6 @@
     <ClCompile Include="keyboard.cpp" />
     <ClCompile Include="images_jpeg.cpp" />
     <ClCompile Include="mdfparser.cpp" />
-    <ClCompile Include="meshes_animfallbacks.cpp" />
-    <ClCompile Include="meshes_rewrite.cpp" />
     <ClCompile Include="src\graphics\dynamictexture.cpp" />
     <ClCompile Include="src\graphics\shaders_compiler.cpp" />
     <ClCompile Include="src\graphics\bufferbinding.cpp" />

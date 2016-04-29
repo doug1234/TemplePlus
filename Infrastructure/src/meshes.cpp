@@ -1,6 +1,6 @@
-#include "..\include\infrastructure\meshes.h"
+
 #include "infrastructure/meshes.h"
-#include <infrastructure/format.h>
+#include "infrastructure/format.h"
 
 using namespace gfx;
 
@@ -42,7 +42,7 @@ static const char* sWeaponTypeNames[] = {
 };
 
 static const char* sWeaponAnimNames[] = {
-	"none"
+	"none",
 	"rattack",
 	"rattack2",
 	"rattack3",
@@ -91,7 +91,7 @@ static const char* sWeaponAnimNames[] = {
 };
 
 static const char* sNormalAnimNames[] = {
-	"falldown"
+	"falldown",
 	"prone_idle",
 	"prone_fidget",
 	"getup",
@@ -223,7 +223,7 @@ bool EncodedAnimId::IsConjuireAnimation() const
 	}
 }
 
-inline std::string EncodedAnimId::GetName() const {
+std::string EncodedAnimId::GetName() const {
 
 	static std::string sUnknown = "<unknown>";
 

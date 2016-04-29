@@ -10,55 +10,10 @@
 
 #include "temple/dll.h"
 #include "temple/meshes.h"
+#include "temple/aas.h"
 #include <gsl/gsl.h>
 
 namespace temple {
-
-	enum AasStatus : uint32_t {
-		AAS_OK = 0,
-		AAS_ERROR = 1
-	};
-
-#pragma pack(push, 1)
-	struct AasSubmesh {
-		int field_0;
-		int vertexCount;
-		int primCount;
-		float* positions;
-		float* normals;
-		float* uv;
-		uint16_t* indices;
-	};
-
-	/*
-	Bitfield that indicates once-per-animation events that happened
-	during advancing the animation's time.
-*/
-	enum AasEventFlag : uint32_t {
-		AEF_NONE = 0,
-		AEF_ACTION = 1,
-		AEF_END = 2
-	};
-
-	/*
-		Configuration for the overall system
-	*/
-	typedef AasStatus (*FnAasGetFilename)(int meshId, char* filenameOut);
-	typedef AasStatus (*FnAasGetAnimName)(int animid, char* nameOut);
-	typedef void (*FnAasRunScript)(const char* script);
-
-	struct LegacyAasConfig {
-		float scaleX = 28.284271f;
-		float scaleY = 28.284271f;
-		FnAasGetFilename getSkaFilename = nullptr;
-		FnAasGetFilename getSkmFilename = nullptr;
-		FnAasGetAnimName getAnimName = nullptr;
-		void* mapSpecialAnimId = nullptr; // TODO
-		void* field18 = nullptr; // TODO
-		FnAasRunScript runScript = nullptr;
-	};
-
-#pragma pack(pop)
 
 	static struct AasFunctions : AddressTable {
 
@@ -224,7 +179,7 @@ namespace temple {
 
 	AasSubmeshAdapter::~AasSubmeshAdapter() {
 		if (mSubmesh) {
-			functions.FreeSubmesh(mSubmesh);
+			free(mSubmesh);
 		}
 	}
 
@@ -456,6 +411,9 @@ namespace temple {
 				if (y > maxHeight) {
 					maxHeight = y;
 				}
+				if (y < -500 || y > 500) {
+					__debugbreak();
+				}
 			}
 		}
 
@@ -497,6 +455,10 @@ namespace temple {
 
 				// Distance from model origin (squared)
 				auto distSq = pos.x * pos.x + pos.z * pos.z;
+
+				if (pos.x > 500 || pos.z > 500) {
+					__debugbreak();
+				}
 
 				if (distSq > maxRadiusSquared) {
 					maxRadiusSquared = distSq;

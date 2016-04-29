@@ -96,9 +96,6 @@
     <ClInclude Include="breakpad\ipc_protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\platform\windows.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\infrastructure\json11.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -169,12 +166,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\infrastructure\keyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\platform\d3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\platform\dxerr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\infrastructure\binaryreader.h">
@@ -259,6 +250,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\gsl\string_span.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\platform\d3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\platform\dxerr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\platform\windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -365,13 +365,7 @@
     <ClCompile Include="src\location.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="meshes_rewrite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\meshes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="meshes_animfallbacks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="breakpad\guid_string.cc">

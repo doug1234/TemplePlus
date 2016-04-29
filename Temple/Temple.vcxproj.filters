@@ -39,6 +39,12 @@
     <ClInclude Include="include\temple\soundsystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\temple\aas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\meshes_rewrite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\materials.cpp">
@@ -60,6 +66,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\soundsystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshes_animfallbacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshes_rewrite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -14,14 +14,39 @@ using DirectX::XMFLOAT4X3;
 #include "util/fixes.h"
 
 namespace aas {
+	// TODO: REMOVE
+	static void CompareMatrices(XMFLOAT4X4 &a, XMFLOAT4X4 &b) {
+		for (int row = 0; row < 3; ++row) {
+			for (int col = 0; col < 4; col++) {
+				auto ul = std::abs(std::max(a(row, col), b(row, col))) * 0.0001;
+				if (std::abs(a(row, col) - b(row, col)) > ul) {
+					logger->error("{},{} -> {} != {}", row, col, a(row, col), b(row, col));
+				}
+			}
+		}
+	}
 
 /*
         Legacy structures found in the DLL.
 */
 
+struct AasMatrix {
+float m[3][4];
+};
+
 struct IEventListener {
   virtual void Handle() = 0;
   virtual ~IEventListener() = 0;
+
+  temple::AasEventFlag *mOutput = nullptr;
+  void SetOutput(temple::AasEventFlag *output) {
+	  mOutput = output;
+	  *output = (temple::AasEventFlag) 0;
+  }
+
+  void ClearOutput() {
+	  mOutput = nullptr;
+  }
 };
 
 struct IMaterialResolver {
@@ -188,9 +213,10 @@ struct AnimatedModel {
   virtual void Method14() = 0;
   virtual int HasAnimation(char *anim) = 0;
   virtual int SetAnimIdx(int animIdx) = 0;
-  virtual void Advance(const XMFLOAT4X3 *worldMatrix, float deltaTime,
+  virtual void Advance(const AasMatrix *worldMatrix, float deltaTime,
                        float deltaDistance, float deltaRotation) = 0;
-  virtual void SetWorldMatrix(const XMFLOAT4X3 *worldMatrix) = 0;
+  virtual void SetWorldMatrix(const AasMatrix* worldMatrix) = 0;
+  // This may be "update bone matrices"
   virtual void Method19() = 0;
   virtual void SetTime() = 0;
   virtual void Method21() = 0;
@@ -205,6 +231,11 @@ struct AnimatedModel {
   virtual void AddReplacementMaterial() = 0;
   virtual void GetDistPerSec() = 0;
   virtual void GetRotationPerSec() = 0;
+
+  AasMatrix* GetBoneWorldMatrix(AasMatrix *matrixOut, const char *boneName) {
+	  static auto aas_class2_GetBoneMatrix = (AasMatrix *(__thiscall*)(AnimatedModel*, AasMatrix*, const char*))temple::GetPointer<void>(0x10268910);
+	  return aas_class2_GetBoneMatrix(this, matrixOut, boneName);
+  }
 
   // Call original GetSubmeshes function regardless of vtable
   void GetSubmeshesOrg(int *submeshCountOut, int *materialsOut) {
@@ -275,8 +306,12 @@ public:
 
   IMaterialResolver *&mMaterialResolver = temple::GetRef<IMaterialResolver*>(0x10EFB8F4);
 
+  IEventListener *&mEventListener = temple::GetRef<IEventListener*>(0x11069C70);
+
 private:
   AnimSlot *GetRunningAnim(temple::AasHandle handle) const;
+
+  AasMatrix GetEffectiveWorldMatrix(const temple::AasAnimParams &state) const;
 
   using AnimSlotArray = AnimSlot[MaxSlots];
 
@@ -306,6 +341,17 @@ std::ostream &operator<<(std::ostream &out, const AnimSlot &anim) {
   return out;
 }
 
+inline void XM_CALLCONV StoreAasMatrix(AasMatrix *target, DirectX::FXMMATRIX src) {
+	
+	using namespace DirectX;
+
+	static XMFLOAT4X4A sTmpMatrix;
+	XMStoreFloat4x4A(&sTmpMatrix, XMMatrixTranspose(src));
+	
+	memcpy(target, &sTmpMatrix, sizeof(AasMatrix));
+
+}
+
 static class AASSystemHooks : public TempleFix {
 public:
   void apply() override {
@@ -320,8 +366,6 @@ public:
           if (!anim) {
             return AAS_ERROR;
           }
-
-          logger->info("Getting submeshes for {}", *anim);
 
           *pSubmeshCountOut = 25;
           static int sSubmeshMaterialIds[25];
@@ -340,8 +384,6 @@ public:
 		if (!anim) {
 			return AAS_ERROR;
 		}
-
-		logger->info("Adding addmesh {} to {}", filename, *anim);
 
 		if (anim->addMeshCount != 31) {
 			aasSystem->ReadModel(filename, &anim->addMeshData[anim->addMeshCount]);
@@ -364,8 +406,6 @@ public:
 		if (!anim) {
 			return AAS_ERROR;
 		}
-
-		logger->info("Clearing addmeshes for {}", *anim);
 
 		for (uint32_t i = 0; i < anim->addMeshCount; i++) {
 			auto addMesh = anim->addMeshData[i];
@@ -394,42 +434,51 @@ public:
 	});
 
 	// AasAnimatedModelGetSubmesh
-	using AasAnimatedModelGetSubmeshFn = AasStatus(AasHandle, AasSubmesh**, const AasAnimParams*, int);
-	static AasAnimatedModelGetSubmeshFn *sOldGetSubmesh;
-	sOldGetSubmesh = replaceFunction<AasStatus(AasHandle, AasSubmesh**, const AasAnimParams*, int)>(0x10263400, [](AasHandle handle, AasSubmesh **pSubmeshOut, const AasAnimParams *state, int submeshIdx) {
+	replaceFunction<AasStatus(AasHandle, AasSubmesh**, const AasAnimParams*, int)>(0x10263400, [](AasHandle handle, AasSubmesh **pSubmeshOut, const AasAnimParams *state, int submeshIdx) {
 
-		using namespace DirectX;
+		auto anim = aasSystem->GetRunningAnim(handle);		
+		if (!anim) {
+			return AAS_ERROR;
+		}
 
-		auto rotation = state->rotation - XM_PI * 0.75f;
+		auto result = new AasSubmesh;
+		*pSubmeshOut = result;
+		result->field_0 = 0;
 
-		auto scalingMatrix = XMMatrixScaling(-1, 1, 1);
-		auto rotationMatrix = XMMatrixRotationY(rotation);
-		auto rotationPitchMatrix = XMMatrixRotationX(state->rotationPitch);
-		auto translationMatrix = XMMatrixTranslation(
-			state->locX * INCH_PER_TILE + INCH_PER_TILE * 0.5f + state->offsetX,
-			state->offsetZ,
-			state->locY * INCH_PER_TILE + INCH_PER_TILE * 0.5f + state->offsetY
+		auto aasWorldMat = aasSystem->GetEffectiveWorldMatrix(*state);
+		anim->model->SetWorldMatrix(&aasWorldMat);
+		anim->model->SetScale(state->scale);
+		anim->model->GetSubmesh(
+			submeshIdx,
+			&result->vertexCount,
+			&result->positions,
+			&result->normals,
+			&result->uv,
+			&result->primCount,
+			&result->indices
 		);
-		
-		auto mat = XMMatrixMultiply(translationMatrix, XMMatrixMultiply(rotationPitchMatrix, XMMatrixMultiply(rotationMatrix, scalingMatrix)));
-		
-		XMFLOAT4X4 worldMat;
-		XMStoreFloat4x4(&worldMat, XMMatrixTranspose(mat));
-
-		XMQuaternionRotationAxis(XMVectorSet(0, 1, 0, 0), rotation);
-
-		sOldGetSubmesh(handle, pSubmeshOut, state, submeshIdx);
-
-		auto anim = aasSystem->GetRunningAnim(handle);
-		XMFLOAT4X4 orgWorldMat;
-		memcpy(&orgWorldMat, &anim->model->worldMatrix, 3 * 4 * sizeof(float));
 		
 		return AAS_OK;
 	});
 
 	// AasAnimatedModelFreeSubmesh
 	replaceFunction<AasStatus(AasSubmesh*)>(0x10262500, [](AasSubmesh *submesh) {
-		free(submesh);
+		delete submesh;
+		return AAS_OK;
+	});
+
+	// AasAnimatedModelAdvance
+	replaceFunction<AasStatus(AasHandle, float, float, float, const AasAnimParams *, AasEventFlag*)>(0x10262c10, [](AasHandle handle, float deltaTimeInSecs, float deltaDistance, float deltaRotation, const AasAnimParams *state, AasEventFlag *eventOut) {
+		auto aasWorldMat = aasSystem->GetEffectiveWorldMatrix(*state);
+
+		auto anim = aasSystem->GetRunningAnim(handle);
+		if (anim) {
+			aasSystem->mEventListener->SetOutput(eventOut);
+			anim->model->SetScale(state->scale);
+			anim->model->Advance(&aasWorldMat, deltaTimeInSecs, deltaDistance, deltaRotation);
+			aasSystem->mEventListener->ClearOutput();
+		}
+
 		return AAS_OK;
 	});
 
@@ -451,6 +500,43 @@ AnimSlot *AASSystem::GetRunningAnim(AasHandle handle) const {
   }
 
   return anim;
+}
+
+AasMatrix AASSystem::GetEffectiveWorldMatrix(const AasAnimParams &state) const
+{
+	using namespace DirectX;
+
+	auto rotation = state.rotation - XM_PI * 0.75f;
+
+	auto scalingMatrix = XMMatrixScaling(-1, 1, 1);
+	auto rotationMatrix = XMMatrixRotationY(rotation);
+	auto rotationPitchMatrix = XMMatrixRotationX(state.rotationPitch);
+	auto translationMatrix = XMMatrixTranslation(
+		state.locX * INCH_PER_TILE + INCH_PER_TILE * 0.5f + state.offsetX,
+		state.offsetZ,
+		state.locY * INCH_PER_TILE + INCH_PER_TILE * 0.5f + state.offsetY
+	);
+
+	auto worldMat = XMMatrixMultiply(scalingMatrix, XMMatrixMultiply(rotationMatrix, XMMatrixMultiply(rotationPitchMatrix, translationMatrix)));
+	AasMatrix aasWorldMat;
+	StoreAasMatrix(&aasWorldMat, worldMat);
+
+	if (state.flags & 2 && state.parentAnim) {
+		auto parentAnim = GetRunningAnim(state.parentAnim);
+		if (parentAnim) {
+			AasMatrix parentWorldMatrix;
+			parentAnim->model->GetBoneWorldMatrix(
+				&parentWorldMatrix,
+				state.attachedBoneName
+			);
+			// TODO: Rewrite ourselves
+			static auto AasMatrixMakeOrthoNorm = temple::GetPointer<void(AasMatrix *a1, signed int size, int colStride, int rowStride)>(0x102652d0);
+			AasMatrixMakeOrthoNorm(&parentWorldMatrix, 3, 4, 1);
+			aasWorldMat = parentWorldMatrix;
+		}
+	}
+
+	return aasWorldMat;
 }
 
 bool AASSystem::ReadModel(const char * filename, SKMFile ** modelOut) const

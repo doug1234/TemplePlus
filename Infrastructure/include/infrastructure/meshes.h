@@ -7,8 +7,6 @@
 #include <DirectXMath.h>
 #include <gsl/span.h>
 
-enum AasEventFlag;
-
 namespace gfx {
 
 	struct Light3d;

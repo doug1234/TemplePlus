@@ -83,7 +83,6 @@
     <ClCompile Include="gamesystems\partsystemsrenderer.cpp" />
     <ClCompile Include="gamesystems\staticmeshes.cpp" />
     <ClCompile Include="gamesystems\ui_intgame_renderer.cpp" />
-    <ClCompile Include="graphics\aas_hooks.cpp" />
     <ClCompile Include="graphics\imgfile.cpp" />
     <ClCompile Include="graphics\loadingscreen.cpp" />
     <ClCompile Include="graphics\mapterrain.cpp" />
@@ -485,17 +484,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Temple\include;$(SolutionDir)\ParticleSystems\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\EASTL\include;$(SolutionDir)\Temple\include;$(SolutionDir)\ParticleSystems\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestWithIda|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Temple\include;$(SolutionDir)\ParticleSystems\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\EASTL\include;$(SolutionDir)\Temple\include;$(SolutionDir)\ParticleSystems\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\Temple\include;$(SolutionDir)\ParticleSystems\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\EASTL\include;$(SolutionDir)\Temple\include;$(SolutionDir)\ParticleSystems\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)dependencies\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

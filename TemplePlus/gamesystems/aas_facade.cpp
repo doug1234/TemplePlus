@@ -424,6 +424,12 @@ public:
 	  const temple::AasAnimParams &state, 
 	  temple::AasHandle *handleOut);
 
+  temple::AasStatus CreateAnimFromFiles(const std::string &meshPath,
+	  const std::string &skeletonPath,
+	  gfx::EncodedAnimId idleAnim,
+	  const temple::AasAnimParams &state,
+	  temple::AasHandle *handleOut);
+
   void SetAnimId(temple::AasHandle handle, gfx::EncodedAnimId anim);
 
   temple::AasEventFlag Advance(temple::AasHandle handle, 
@@ -431,6 +437,8 @@ public:
 	  float deltaDistance, 
 	  float deltaRotation,
 	  const temple::AasAnimParams &state);
+
+  temple::AasStatus Free(temple::AasHandle handle);
 
 private:
   AnimSlot *GetFreeAnim();
@@ -709,15 +717,59 @@ public:
                        const AasAnimParams *state, AasHandle *handleOut) {
 		return aasSystem->CreateAnimFromIds(skmId, skaId, idleAnim, *state, handleOut);
         });
+
+
+	// AasAnimatedModelFromNames
+	replaceFunction<AasStatus(const char *, const char *, gfx::EncodedAnimId,
+		const AasAnimParams *, AasHandle *)>(
+			0x102643A0, [](const char *skmPath, const char *skaPath, gfx::EncodedAnimId idleAnim,
+				const AasAnimParams *state, AasHandle *handleOut) {
+		return aasSystem->CreateAnimFromFiles(skmPath, skaPath, idleAnim, *state, handleOut);
+	});
+
+	// AasAnimatedModelFree
+	replaceFunction<AasStatus(AasHandle)>(0x10264510, [](AasHandle handle) {
+		return aasSystem->FreeModel(handle);
+	});
   }
 } hooks;
 
 temple::AasStatus AASSystem::CreateAnimFromIds(int skaId, int skmId, gfx::EncodedAnimId idleAnim, const temple::AasAnimParams & state, temple::AasHandle * handleOut)
 {
+	auto skeletonPath = GetSkeletonFilename(skaId);
+	if (skeletonPath.empty()) {
+		logger->error("meshes.mes entry for id {} is missing. Could not load skeleton.", skaId);
+		return AAS_ERROR;
+	}
+
+	auto meshPath = GetMeshFilename(skmId);
+	if (meshPath.empty()) {
+		logger->error("meshes.mes entry for id {} is missing. Could not load mesh.", skmId);
+		return AAS_ERROR;
+	}
+
+	return CreateAnimFromFiles(meshPath, skeletonPath, idleAnim, state, handleOut);
+}
+
+temple::AasStatus AASSystem::CreateAnimFromFiles(const std::string & meshPath, 
+	const std::string &skeletonPath, 
+	gfx::EncodedAnimId idleAnim, 
+	const temple::AasAnimParams & state, 
+	temple::AasHandle * handleOut)
+{
 	auto anim = GetFreeAnim();
 
 	if (!anim) {
 		logger->error("The maximum number of animations has been exceeded.");
+		return AAS_ERROR;
+	}
+
+	if (!LoadSkaFile(skeletonPath, &anim->skaFile)) {
+		return AAS_ERROR;
+	}
+
+	if (!LoadSkmFile(meshPath, &anim->skmFile)) {
+		UnloadSkaFile(anim->skaFile);
 		return AAS_ERROR;
 	}
 
@@ -729,38 +781,14 @@ temple::AasStatus AASSystem::CreateAnimFromIds(int skaId, int skmId, gfx::Encode
 	// Previously the ID was set here, but i think it must already be set in aas_init
 	assert(anim == GetRunningAnim(anim->id));
 
-	auto skeletonFilename = GetSkeletonFilename(skaId);
-	if (skeletonFilename.empty()) {
-		logger->error("meshes.mes entry for id {} is missing. Could not load skeleton.", skaId);
-		return AAS_ERROR;
-	}
-
-	if (!LoadSkaFile(skeletonFilename, &anim->skaFile)) {
-		return AAS_ERROR;
-	}
-
-	anim->skaFilename = _strdup(skeletonFilename.c_str());
-
-	auto meshFilename = GetMeshFilename(skmId);
-	if (meshFilename.empty()) {
-		// TODO: What about the anim entry itself?
-		UnloadSkaFile(anim->skaFile);
-		logger->error("meshes.mes entry for id {} is missing. Could not load mesh.", skmId);
-		return AAS_ERROR;
-	}
-
-	if (!LoadSkmFile(meshFilename, &anim->skmFile)) {
-		UnloadSkaFile(anim->skaFile);
-		return AAS_ERROR;
-	}
-
-	anim->skmFilename = _strdup(meshFilename.c_str());
+	anim->skaFilename = _strdup(skeletonPath.c_str());
+	anim->skmFilename = _strdup(meshPath.c_str());
 
 	// This is currently manual, but should be replaced more or less
 	auto model = (AnimatedModel*) operator new(0x100u);
-	
+
 	// Set the original vtable pointer
-	*((uint32_t*)model) = (uint32_t) temple::GetPointer<uint32_t>(0x102A8DC8);
+	*((uint32_t*)model) = (uint32_t)temple::GetPointer<uint32_t>(0x102A8DC8);
 	model->skaData = nullptr;
 	model->submeshesValid = false;
 	model->submeshCount = 0;
@@ -780,7 +808,7 @@ temple::AasStatus AASSystem::CreateAnimFromIds(int skaId, int skmId, gfx::Encode
 	model->timeRel2 = 0;
 	model->drivenDistance = 0;
 	model->drivenRotation = 0;
-	
+
 	anim->model = model;
 
 	model->SetSkaFile(anim->skaFile, 0, 0);
@@ -864,6 +892,35 @@ temple::AasEventFlag AASSystem::Advance(AasHandle handle, float deltaTimeInSecs,
 		mEventListener->ClearOutput();
 	}
 	return eventOut;
+}
+
+temple::AasStatus AASSystem::Free(temple::AasHandle handle)
+{
+	auto anim = GetRunningAnim(handle);
+
+	if (!anim) {
+		return AAS_ERROR;
+	}
+
+	// TODO: Verify that this actually calls the vtable method 1
+	delete anim->model;
+
+	AasSkaFileRelease(anim->skaFile);
+	
+	for (size_t i = 0; i < anim->addMeshCount; i++) {
+		auto v5 = (void **)anim->addMeshNames;
+		free(*(v5 - 32));
+		free(*v5);
+		++v5;
+	}
+	free(v2->skmFile);
+	v2->freed = 1;
+	if (v2->skaFilename)
+		free(v2->skaFilename);
+	if (v2->skmFilename)
+		free(v2->skmFilename);
+
+	return AAS_OK;
 }
 
 AnimSlot * AASSystem::GetFreeAnim()

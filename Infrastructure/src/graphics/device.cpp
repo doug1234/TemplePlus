@@ -491,6 +491,11 @@ namespace gfx {
 
 		auto result = mDevice->Present(nullptr, nullptr, nullptr, nullptr);
 
+		if (result == D3DERR_DEVICEHUNG) {
+				throw TempleException("TemplePlus caused your graphics driver to crash.\n"
+					"You may be able to fix this by updating your graphics drivers.");
+		}
+
 		if (result != S_OK && result != S_PRESENT_OCCLUDED) {
 			LogD3dError("Present()", result);
 			if (result == D3DERR_DEVICELOST || result == S_PRESENT_MODE_CHANGED) {

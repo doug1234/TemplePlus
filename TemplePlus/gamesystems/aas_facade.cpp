@@ -729,7 +729,7 @@ public:
 
 	// AasAnimatedModelFree
 	replaceFunction<AasStatus(AasHandle)>(0x10264510, [](AasHandle handle) {
-		return aasSystem->FreeModel(handle);
+		return aasSystem->Free(handle);
 	});
   }
 } hooks;
@@ -905,20 +905,20 @@ temple::AasStatus AASSystem::Free(temple::AasHandle handle)
 	// TODO: Verify that this actually calls the vtable method 1
 	delete anim->model;
 
-	AasSkaFileRelease(anim->skaFile);
+	UnloadSkaFile(anim->skaFile);
 	
 	for (size_t i = 0; i < anim->addMeshCount; i++) {
-		auto v5 = (void **)anim->addMeshNames;
-		free(*(v5 - 32));
-		free(*v5);
-		++v5;
+		free(anim->addMeshData[i]);
+		free(anim->addMeshNames[i]);
 	}
-	free(v2->skmFile);
-	v2->freed = 1;
-	if (v2->skaFilename)
-		free(v2->skaFilename);
-	if (v2->skmFilename)
-		free(v2->skmFilename);
+	free(anim->skmFile);
+	anim->freed = true;
+	if (anim->skaFilename) {
+		free(anim->skaFilename);
+	}
+	if (anim->skmFilename) {
+		free(anim->skmFilename);
+	}
 
 	return AAS_OK;
 }

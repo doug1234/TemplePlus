@@ -447,6 +447,8 @@ private:
 
   AasMatrix GetEffectiveWorldMatrix(const temple::AasAnimParams &state) const;
 
+  AasMatrix GetEffectiveWorldMatrixForParticles(const temple::AasAnimParams &state) const;
+
   using AnimSlotArray = AnimSlot[MaxSlots];
 
   AnimSlotArray &mAnimations = temple::GetRef<AnimSlotArray>(0x10EFB900);
@@ -989,6 +991,37 @@ AasMatrix AASSystem::GetEffectiveWorldMatrix(const AasAnimParams &state) const {
   }
 
   return aasWorldMat;
+}
+
+AasMatrix AASSystem::GetEffectiveWorldMatrixForParticles(const AasAnimParams &state) const {
+	using namespace DirectX;
+
+	auto scalingMatrix = XMMatrixScaling(-1, 1, 1);
+	auto translationMatrix = XMMatrixTranslation(
+		state.locX * INCH_PER_TILE + INCH_PER_TILE * 0.5f + state.offsetX,
+		state.offsetZ,
+		state.locY * INCH_PER_TILE + INCH_PER_TILE * 0.5f + state.offsetY);
+	auto rotationMatrix = XMMatrixRotationRollPitchYaw(state.rotationPitch, state.rotationYaw, state.rotationRoll);
+	auto worldMat = XMMatrixMultiply(scalingMatrix, XMMatrixMultiply(rotationMatrix, translationMatrix));
+	AasMatrix aasWorldMat;
+	StoreAasMatrix(&aasWorldMat, worldMat);
+
+	if (state.flags & 2 && state.parentAnim) {
+		auto parentAnim = GetRunningAnim(state.parentAnim);
+		if (parentAnim) {
+			AasMatrix parentWorldMatrix;
+			parentAnim->model->GetBoneWorldMatrix(&parentWorldMatrix,
+				state.attachedBoneName);
+			// TODO: Rewrite ourselves
+			static auto AasMatrixMakeOrthoNorm =
+				temple::GetPointer<void(AasMatrix * a1, signed int size,
+					int colStride, int rowStride)>(0x102652d0);
+			AasMatrixMakeOrthoNorm(&parentWorldMatrix, 3, 4, 1);
+			aasWorldMat = parentWorldMatrix;
+		}
+	}
+
+	return aasWorldMat;
 }
 
 bool AASSystem::ReadModel(const char *filename, SKMFile **modelOut) const {

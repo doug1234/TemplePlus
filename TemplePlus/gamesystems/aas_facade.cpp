@@ -438,6 +438,11 @@ public:
 	  float deltaRotation,
 	  const temple::AasAnimParams &state);
 
+  temple::AasStatus GetBoneWorldMatrix(temple::AasHandle handle, 
+	  const temple::AasAnimParams &state, 
+	  XMFLOAT4X4 *matrixOut, 
+	  const char *boneName);
+
   temple::AasStatus Free(temple::AasHandle handle);
 
 private:
@@ -666,29 +671,16 @@ public:
         0x10263000, [](AasHandle handle, AasAnimParams *state, XMFLOAT4X4 *pOut,
                        const char *boneName) {
 
-          // Previously, ToEE actually computed the effective world matrix here,
-          // but in reality, the
-          // get bone matrix call below will never ever use the input value
-          // auto aasWorldMat = aasSystem->GetEffectiveWorldMatrix(*state);
-
-          auto anim = aasSystem->GetRunningAnim(handle);
-          if (anim) {
-            anim->model->GetBoneWorldMatrix((AasMatrix *)pOut, boneName);
-
-            pOut->_41 = 0;
-            pOut->_42 = 0;
-            pOut->_43 = 0;
-            pOut->_44 = 1;
-
-            using namespace DirectX;
-            XMStoreFloat4x4(pOut, XMMatrixTranspose(XMLoadFloat4x4(pOut)));
-
-            return AAS_OK;
-          } else {
-            return AAS_ERROR;
-          }
-
+		return aasSystem->GetBoneWorldMatrix(handle, *state, pOut, boneName);
         });
+
+	// AasAnimatedModelGetBoneWorldMatrixByNameForChild
+	replaceFunction<AasStatus(AasHandle, AasHandle, const AasAnimParams*, XMFLOAT4X4*, const char*)>(0x102631E0, 
+		[](AasHandle parentHandle, AasHandle handle, const AasAnimParams* state, XMFLOAT4X4* matrixOut, const char *boneName) {
+		ddddddddddddddddddddddddd
+		
+		return AAS_OK;
+	});
 
     // AasAnimatedModelSetClothFlagSth
     replaceFunction<void(AasHandle)>(0x102633c0, [](AasHandle handle) {
@@ -894,6 +886,33 @@ temple::AasEventFlag AASSystem::Advance(AasHandle handle, float deltaTimeInSecs,
 		mEventListener->ClearOutput();
 	}
 	return eventOut;
+}
+
+temple::AasStatus AASSystem::GetBoneWorldMatrix(temple::AasHandle handle, const temple::AasAnimParams & state, XMFLOAT4X4 * matrixOut, const char * boneName)
+{
+	// Previously, ToEE actually computed the effective world matrix here,
+	// but in reality, the
+	// get bone matrix call below will never ever use the input value
+	// auto aasWorldMat = aasSystem->GetEffectiveWorldMatrix(*state);
+
+	auto anim = GetRunningAnim(handle);
+	if (anim) {
+		anim->model->GetBoneWorldMatrix((AasMatrix *)matrixOut, boneName);
+
+		matrixOut->_41 = 0;
+		matrixOut->_42 = 0;
+		matrixOut->_43 = 0;
+		matrixOut->_44 = 1;
+
+		using namespace DirectX;
+		XMStoreFloat4x4(matrixOut, XMMatrixTranspose(XMLoadFloat4x4(matrixOut)));
+
+		return AAS_OK;
+	}
+	else {
+		return AAS_ERROR;
+	}
+
 }
 
 temple::AasStatus AASSystem::Free(temple::AasHandle handle)

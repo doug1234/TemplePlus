@@ -342,6 +342,7 @@
       <Filter>Mods and Fixes</Filter>
     </ClCompile>
     <ClCompile Include="gamesystems\aas_facade.cpp" />
+    <ClCompile Include="gamesystems\aas_facade_hooks.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="movies.h" />
@@ -646,6 +647,7 @@
     <ClInclude Include="mod_support.h">
       <Filter>Mods and Fixes</Filter>
     </ClInclude>
+    <ClInclude Include="gamesystems\aas_facade.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Mods and Fixes">

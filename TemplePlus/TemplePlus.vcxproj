@@ -42,6 +42,7 @@
     <ClCompile Include="fonts\fonts_layout.cpp" />
     <ClCompile Include="fonts\fonts_render.cpp" />
     <ClCompile Include="gamesystems\aas_facade.cpp" />
+    <ClCompile Include="gamesystems\aas_facade_hooks.cpp" />
     <ClCompile Include="gamesystems\clipping\clippingmesh.cpp" />
     <ClCompile Include="gamesystems\clipping\clipping_hooks.cpp" />
     <ClCompile Include="gamesystems\clipping\clipping.cpp" />
@@ -263,6 +264,7 @@
     <ClInclude Include="fade.h" />
     <ClInclude Include="float_line.h" />
     <ClInclude Include="fonts\fonts.h" />
+    <ClInclude Include="gamesystems\aas_facade.h" />
     <ClInclude Include="gamesystems\clipping\clippingmesh.h" />
     <ClInclude Include="gamesystems\clipping\clipping.h" />
     <ClInclude Include="gamesystems\d20\d20stats.h" />

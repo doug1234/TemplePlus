@@ -1,0 +1,5 @@
+ID_string: CONTINGENCY
+effect_type: 0
+texture_file: art\interface\player_conditions\buffs\Contingency.tga
+help_topic: TAG_ROOT
+tooltip_base_text:Contingency

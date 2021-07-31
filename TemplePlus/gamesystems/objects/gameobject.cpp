@@ -7,6 +7,7 @@
 #include "arrayidxbitmaps.h"
 #include "tio/tio.h"
 #include "util/streams.h"
+#include <config/config.h>
 
 GameObjectBody::~GameObjectBody()
 {
@@ -195,7 +196,7 @@ ObjectId GameObjectBody::GetObjectId(obj_f field) const
 	auto storageLoc = GetStorageLocation<ObjectId*>(field);
 
 	// Null handles are considered valid by this function
-	if (!storageLoc) {
+	if (!storageLoc || !*storageLoc) {
 		ObjectId result;
 		result.subtype = ObjectIdKind::Null;
 		return result;
@@ -715,6 +716,11 @@ void GameObjectBody::UnfreezeIds()
 		return;
 	}
 
+	if (IsCritter()) {
+		logger->trace("  Unfreezing {}", objSystem->GetHandleById(this->id) );
+	}
+	
+
 	ForEachField([=](obj_f field, void **storageLocation) {
 		if (!*storageLocation) {
 			return true;
@@ -731,6 +737,17 @@ void GameObjectBody::UnfreezeIds()
 			}
 		} else if (fieldType == ObjectFieldType::ObjArray) {
 			auto objectIdArray = GameObjectIdArray(reinterpret_cast<ArrayHeader**>(storageLocation));
+
+			if (field == obj_f_critter_inventory_list_idx) {
+				objectIdArray.ForEachIndex([&](size_t idx) {
+					auto& objId = objectIdArray[idx];
+					auto handle = objSystem->GetHandleById(objId);
+					if (!handle) {
+						logger->error("Null inventory item! idx = {}, GUID = {}", idx, objId.ToString());
+					}
+				});
+			};
+
 			objectIdArray.ForEachIndex([&](size_t idx) {
 				auto &objId = objectIdArray[idx];
 				auto handle = objSystem->GetHandleById(objId);
@@ -787,6 +804,44 @@ void GameObjectBody::FreezeIds()
 	// Mark as frozen
 	internalFlags |= 1;
 	SetInternalFlags(internalFlags);
+}
+
+void GameObjectBody::PruneNullInventoryItems()
+{
+	auto handle = objSystem->GetHandleById(this->id);
+	if (!handle) return;
+
+	auto flags = GetInternalFlags();
+	if (flags & 1) { // obj refs are still frozen
+		logger->error("PruneNullInventoryItems: cannot do for frozen refs. Obj {} {}", handle, id.ToString());
+		return;
+	}
+
+
+	auto invenField = inventory.GetInventoryListField(handle);
+	auto invenCountField = inventory.GetInventoryNumField(handle);
+
+	auto invenCountFromField = GetInt32(invenCountField);
+	auto invenCount = GetObjectIdArray(invenField).GetSize();
+	if (invenCount != invenCountFromField) {
+		logger->error("Inventory array count does not equal associated num field.  Array: {}, Field: {}", invenCount, invenCountFromField);
+	}
+
+	for (auto i = 0; i < invenCount; ++i) {
+		auto item = GetObjHndl(invenField, i);
+		if (!item) {
+			logger->error("PruneNullInventoryItems: null inventory item (idx {}) on {}!", i, handle);
+
+			auto lastItem = GetObjHndl(invenField, invenCount - 1);
+			SetObjHndl(invenField, i--, lastItem);
+
+			RemoveObjectId(invenField, invenCount - 1);
+			invenCountFromField--;
+			invenCount--;
+			SetInt32(invenCountField, invenCountFromField);
+			continue;
+		}
+	}
 }
 
 std::unique_ptr<GameObjectBody> GameObjectBody::Clone() const {

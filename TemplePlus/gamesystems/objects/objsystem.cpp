@@ -128,6 +128,12 @@ void ObjSystem::UnfreezeIds(objHndl handle)
 	obj->UnfreezeIds();
 }
 
+void ObjSystem::PruneNullInventoryIds(objHndl handle)
+{
+	auto obj = GetObject(handle);
+	obj->PruneNullInventoryItems();
+}
+
 bool ObjSystem::IsValidHandle(objHndl handle)
 {
 	if (!handle) {
@@ -371,7 +377,7 @@ objHndl ObjSystem::LoadFromFile(TioFile* file) {
 	auto handle = mObjRegistry->Add(std::move(obj));
 	if (!id.IsNull()) {
 		mObjRegistry->AddToIndex(handle, id);
-		//logger->info("Loaded object {}", id.ToString());
+		logger->trace("Loaded object {} to handle {}", id.ToString(), handle);
 	}
 
 	FindNodeAllocate(handle);

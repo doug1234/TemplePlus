@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "common.h"
 #include <tig/tig_tabparser.h>
 
@@ -105,6 +105,13 @@ PYBIND11_EMBEDDED_MODULE(tpai, m) {
 		.def_readwrite("id", &AiTactic::tacIdx)
 		.def_readwrite("spell_pkt", &AiTactic::spellPktBody)
 		.def_readwrite("d20_spell_data", &AiTactic::d20SpellData)
+		;
+
+	py::class_<AiParamPacket>(m, "AiParams")
+		.def("__init__", [](AiParamPacket & self, objHndl handle) {
+		self.GetForCritter(handle);}
+		)
+		.def_readwrite("hostility_threshold", &AiParamPacket::hostilityThreshold)
 		;
 }
 
@@ -3054,7 +3061,7 @@ int AiSystem::Flank(AiTactic* aiTac)
 		if (!pathfindingSys.PathDestIsClear(performer, &flankLoc))
 		{
 			bool foundFlankLoc = false;
-			// try to tweak the angle; the flank check looks for the range of 120 - 240°, so we'll try 135,165,195,225
+			// try to tweak the angle; the flank check looks for the range of 120 - 240ï¿½, so we'll try 135,165,195,225
 			float tweakAngles[4] = { -15.0, 15.0, -45.0, 45.0 };
 			for (int j = 0; j < 4; j++)
 			{

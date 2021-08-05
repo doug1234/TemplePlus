@@ -90,6 +90,7 @@ def ContingencyPerform(attachee, args, evt_obj):
 	args.set_param(5, evt_obj.d20a.spell_data.spell_class)
 	args.set_param(6, evt_obj.d20a.spell_data.get_spell_level())
 	args.set_param(7, evt_obj.d20a.spell_data.inven_idx)
+	args.set_param(8, evt_obj.d20a.spell_data.inven_idx) #Metamgic is now zero
 	#args.set_param(8, evt_obj.d20a.spell_data.get_metamagic_data())
 	
 	#move to a function..., create spell data with the 4 parameters that were saved

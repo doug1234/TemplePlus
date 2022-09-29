@@ -1,0 +1,5 @@
+name: Tempest Ambidexterity
+flags: 8
+prereqs:
+description: Penalties for fighting with two weapons are lessened by 1 and by 2 at 4th level.
+prereq descr: Tempest Level 2.

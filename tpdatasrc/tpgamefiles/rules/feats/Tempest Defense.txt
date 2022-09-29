@@ -1,0 +1,5 @@
+name: Tempest Defense
+flags: 8
+prereqs:
+description: When wielding two weapons, a tempest gains a +1 bonus to Armor Class (+2 at 3rd level and +3 at 5th level).
+prereq descr: Tempest Level 1.

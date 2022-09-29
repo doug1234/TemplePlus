@@ -1,0 +1,5 @@
+name: Tempest Two-Weapon Spring Attack
+flags: 8
+prereqs:
+description: When making a spring attack, the tempest can attack once each with two different weapons as an attack action.
+prereq descr: Temptest Level 5

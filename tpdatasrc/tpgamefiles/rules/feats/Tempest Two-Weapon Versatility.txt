@@ -1,0 +1,5 @@
+name: Tempest Two-Weapon Versatility
+flags: 8
+prereqs:
+description: When fighting with two weapons, the effects of certain feats from one weapon to the other weapon as well.
+prereq descr: Tempest Level 3.

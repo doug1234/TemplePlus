@@ -101,7 +101,7 @@ struct LegacyD20System : temple::AddressTable
 	void GlobD20ActnSetSpellData(D20SpellData* d20SpellData);
 	bool UsingSecondaryWeapon(D20Actn* d20a);
 	bool UsingSecondaryWeapon(objHndl obj, int attackCode);
-	void ExtractAttackNumber(objHndl obj, int attackCode, int * attackNumber, int* dualWielding); // e.g. is it a 2nd attack? (-5 penalty)
+	void ExtractAttackNumber(objHndl obj, int attackCode, int * attackNumber, int* dualWielding, bool FullAttack = true); // e.g. is it a 2nd attack? (-5 penalty)
 	objHndl GetAttackWeapon(objHndl obj, int attackCode, D20CAF flags);
 
 	int TargetWithinReachOfLoc(objHndl obj, objHndl target, LocAndOffsets* loc);

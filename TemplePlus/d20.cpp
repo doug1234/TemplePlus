@@ -1183,7 +1183,7 @@ bool LegacyD20System::UsingSecondaryWeapon(objHndl obj, int attackCode)
 	return 0;
 }
 
-void LegacyD20System::ExtractAttackNumber(objHndl obj, int attackCode, int* attackNumber, int * dualWielding)
+void LegacyD20System::ExtractAttackNumber(objHndl obj, int attackCode, int* attackNumber, int * dualWielding, bool FullAttack)
 {
 	if (attackCode >= ATTACK_CODE_NATURAL_ATTACK)
 	{
@@ -1195,17 +1195,22 @@ void LegacyD20System::ExtractAttackNumber(objHndl obj, int attackCode, int* atta
 		*dualWielding = 1;
 		int attackIdx = attackCode - (ATTACK_CODE_OFFHAND+1);
 		int numOffhandExtraAttacks = critterSys.NumOffhandExtraAttacks(obj);
-		if (d20Sys.UsingSecondaryWeapon(obj, attackCode))
-		{
-			if (attackIdx % 2 && (attackIdx - 1) / 2 < numOffhandExtraAttacks )
-				*attackNumber = 1 + (attackIdx - 1) / 2;
-		}
-		else
-		{
-			if ( !(attackIdx % 2 ) && (attackIdx  / 2 < numOffhandExtraAttacks) )
-				*attackNumber = 1 + attackIdx  / 2;
+		if (FullAttack) {
+			if (d20Sys.UsingSecondaryWeapon(obj, attackCode))
+			{
+				if (attackIdx % 2 && (attackIdx - 1) / 2 < numOffhandExtraAttacks)
+					*attackNumber = 1 + (attackIdx - 1) / 2;
+			}
 			else
-				*attackNumber = 1 + numOffhandExtraAttacks + (attackIdx - 2*numOffhandExtraAttacks);
+			{
+				if (!(attackIdx % 2) && (attackIdx / 2 < numOffhandExtraAttacks))
+					*attackNumber = 1 + attackIdx / 2;
+				else
+					*attackNumber = 1 + numOffhandExtraAttacks + (attackIdx - 2 * numOffhandExtraAttacks);
+			}
+		}
+		else {
+			*attackNumber = 1;  //For a single attack this is a "bonus" offhand attack, treat it as  index 1
 		}
 		assert(*attackNumber > 0);
 	}
@@ -3875,7 +3880,7 @@ ActionErrorCode D20ActionCallbacks::ActionCostSwift(D20Actn* d20a, TurnBasedStat
 	return AEC_OK;
 }
 
-ActionErrorCode D20ActionCallbacks::ActionCostStandardAction(D20Actn*, TurnBasedStatus*, ActionCostPacket*acp){
+ActionErrorCode D20ActionCallbacks::ActionCostStandardAction(D20Actn*, TurnBasedStatus*, ActionCostPacket* acp) {
 	acp->hourglassCost = 2;
 	acp->chargeAfterPicker = 0;
 	acp->moveDistCost = 0;

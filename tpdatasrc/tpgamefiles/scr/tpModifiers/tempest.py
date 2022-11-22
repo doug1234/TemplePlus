@@ -11,10 +11,11 @@ def GetConditionName():
 
 print "Registering " + GetConditionName()
 
-classEnum = stat_level_swashbuckler
+classEnum = stat_level_tempest
 classSpecModule = __import__('class090_tempest')
 ###################################################
 
+tempestSpringAttackEnum = 9000
 
 #### standard callbacks - BAB and Save values
 def OnGetToHitBonusBase(attachee, args, evt_obj):
@@ -169,7 +170,7 @@ def TempestTwoWeaponVersatilityDamageBonus(attachee, args, evt_obj):
 	if weaponUsed == OBJ_HANDLE_NULL:
 		return 0
 
-	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_weapon_specialization, 2, evt_obj.bonus_list)
+	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_weapon_specialization_gauntlet, 2, evt_obj.bonus_list)
 	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_greater_weapon_specialization, 2, evt_obj.bonus_list)
 		
 	return 0
@@ -193,5 +194,121 @@ tempestVersatility.AddHook(ET_OnGetCriticalHitRange, EK_NONE, TempestTwoWeaponVe
 
 #Tempest Spring Attack
 
+# Global variables for keeping track of the location of the tepmest at the beginning of the round
+# They do not need to be persistent except during a tempest's turn
+tempest_start_position_x = 0.0
+tempest_start_position_y = 0.0
+tempest_start_location = long()
+
+def TempestStandardActionExtraSecondaryAttacks(attachee, args, evt_obj):
+	print "TempestStandardActionExtraSecondaryAttacks"
+
+	if TempestEncomberedCheck(attachee):
+		return 0
+	
+	moveDistance = args.get_arg(0)
+	
+	print "TempestStandardActionExtraSecondaryAttacks - 1"
+	print moveDistance	
+	
+	if moveDistance <= 5:
+		return 0
+		
+	print "TempestStandardActionExtraSecondaryAttacks - 1"
+	print moveDistance
+	
+	evt_obj.return_val = 1
+	return 0
+
+def TempestDistanceMovedUpdate(attachee, args, evt_obj):
+	#Keep track of how far the tempest as moved from their initial position (not total distance moved)
+	global tempest_start_location
+	global tempest_start_position_x
+	global tempest_start_position_y
+	
+	#The distance needs to location at the beginning of the round needs to be adjusted by the radius (which is in inches)
+	moveDistance = int(attachee.distance_to(tempest_start_location, tempest_start_position_x, tempest_start_position_y) + (attachee.radius / 12.0))
+	args.set_arg(0, moveDistance)
+	return 0
+
+def TempestDistanceMovedReset(attachee, args, evt_obj):
+	global tempest_start_location
+	global tempest_start_position_x
+	global tempest_start_position_y
+
+	#Save the initial position for the tempest and the distance moved for the round
+	tempest_start_position_x = attachee.off_x
+	tempest_start_position_y = attachee.off_y
+	tempest_start_location = attachee.location
+
+	#Zero out the total distance moved from the start position
+	args.set_arg(0, 0)
+	return 0
+
+def TempestSpringAttackRadial(attachee, args, evt_obj):
+
+	print "TempestSpringAttackRadial"
+
+	if TempestEncomberedCheck(attachee):
+		return 0
+	
+	moveDistance = args.get_arg(0)
+	
+	print "TempestSpringAttackRadial - 1"
+	print moveDistance	
+	
+	if moveDistance <= 5:
+		return 0
+		
+	print "TempestSpringAttackRadial - 2"
+	print moveDistance
+
+	print "Spring Attack"
+	print tempestSpringAttackEnum
+
+	radial_action = tpdp.RadialMenuEntryPythonAction("Offhand Attack", D20A_PYTHON_ACTION, tempestSpringAttackEnum, 0, "TAG_INTERFACE_HELP")
+	radial_action.add_child_to_standard(attachee, tpdp.RadialMenuStandardNode.Class)
+
+	return 0
+	
+	
+def OnTempestSpringAttackPerform(attachee, args, evt_obj):
+	print "OnTempestSpringAttackPerform"
+
+	# roll to hit
+	evt_obj.d20a.flags |= D20CAF_SECONDARY_WEAPON
+	evt_obj.d20a.to_hit_processing()
+	isCritical = 0
+	if evt_obj.d20a.flags & D20CAF_CRITICAL:
+		isCritical = 1
+
+	#Last arg is push is issecondary... should that be on?
+	if attachee.anim_goal_push_attack(evt_obj.d20a.target, game.random_range(0,2), isCritical ,0):
+		new_anim_id = attachee.anim_goal_get_new_id()
+		evt_obj.d20a.flags |= D20CAF_NEED_ANIM_COMPLETED
+		evt_obj.d20a.anim_id = new_anim_id
+
+	return 0
+	
+
+def TempestSpringAttackActionFrame(attachee, args, evt_obj):
+	print "TempestSpringAttackActionFrame"
+
+	if evt_obj.d20a.flags & D20CAF_HIT:
+		game.create_history_from_id(d20action.roll_id_1)
+		game.create_history_from_id(d20action.roll_id_2)
+		game.create_history_from_id(d20action.roll_id_0)
+		print "Attack Hit Target: " + str(d20action.target)
+		d20action.target.deal_attack_damage(d20action.performer, d20action.data1, d20action.flags, d20action.action_type)
+
+	return 0
+
+
 tempestSpringAttack = PythonModifier("Tempest Two-Weapon Spring Attack", 3) #Move Distance, Spare, Spare
 tempestSpringAttack.MapToFeat("Tempest Two-Weapon Spring Attack")
+tempestSpringAttack.AddHook(ET_OnD20PythonQuery, "Standard Action Offhand Attack", TempestStandardActionExtraSecondaryAttacks, ())
+tempestSpringAttack.AddHook(ET_OnBeginRound, EK_NONE, TempestDistanceMovedReset, ())
+tempestSpringAttack.AddHook(ET_OnD20Signal, EK_S_Combat_Critter_Moved, TempestDistanceMovedUpdate, ())
+tempestSpringAttack.AddHook(ET_OnBuildRadialMenuEntry, EK_NONE, TempestSpringAttackRadial, ())
+tempestSpringAttack.AddHook(ET_OnD20PythonActionPerform, tempestSpringAttackEnum, OnTempestSpringAttackPerform, ())
+tempestSpringAttack.AddHook(ET_OnD20PythonActionFrame, EK_NONE, TempestSpringAttackActionFrame, ())

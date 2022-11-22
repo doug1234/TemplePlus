@@ -1890,7 +1890,8 @@ int __cdecl GlobalToHitBonus(DispatcherCallbackArgs args)
 	{
 		int attackNumber = 1;
 		int dualWielding = 0;
-		d20Sys.ExtractAttackNumber(args.objHndCaller, attackCode, &attackNumber, &dualWielding);
+		const bool fullAttack = dispIo->attackPacket.flags & D20CAF_FULL_ATTACK;
+		d20Sys.ExtractAttackNumber(args.objHndCaller, attackCode, &attackNumber, &dualWielding, fullAttack);
 		if (attackNumber <= 0)
 		{
 			int dummy = 1;
@@ -3462,12 +3463,13 @@ int __cdecl TwoWeaponFightingBonus(DispatcherCallbackArgs args)
 	int attackCode = dispIo->attackPacket.dispKey;
 	int dualWielding = 0;
 	int attackNumber = 1;
+	const bool fullAttack = dispIo->attackPacket.flags & D20CAF_FULL_ATTACK;
 	if (d20Sys.UsingSecondaryWeapon(args.objHndCaller, attackCode))
 	{
 		featName = feats.GetFeatName(feat);
 		bonusSys.bonusAddToBonusListWithDescr(&dispIo->bonlist, 6, 0, 114, featName);
 	}
-		else if ( d20Sys.ExtractAttackNumber(args.objHndCaller, attackCode, &attackNumber, &dualWielding), dualWielding != 0)
+	else if ( d20Sys.ExtractAttackNumber(args.objHndCaller, attackCode, &attackNumber, &dualWielding, fullAttack), dualWielding != 0)
 	{
 		featName = feats.GetFeatName(feat);
 		bonusSys.bonusAddToBonusListWithDescr(&dispIo->bonlist, 2, 0, 114, featName);
@@ -3490,12 +3492,13 @@ int TwoWeaponFightingBonusRanger(DispatcherCallbackArgs args)
 	int attackCode = dispIo->attackPacket.dispKey;
 	int dualWielding = 0;
 	int attackNumber = 1;
+	const bool fullAttack = dispIo->attackPacket.flags & D20CAF_FULL_ATTACK;
 	if (d20Sys.UsingSecondaryWeapon(args.objHndCaller, attackCode))
 	{
 		featName = feats.GetFeatName(feat);
 		bonusSys.bonusAddToBonusListWithDescr(&dispIo->bonlist, 6, 0, 114, featName);
 	}
-	else if (d20Sys.ExtractAttackNumber(args.objHndCaller, attackCode, &attackNumber, &dualWielding), dualWielding != 0)
+	else if (d20Sys.ExtractAttackNumber(args.objHndCaller, attackCode, &attackNumber, &dualWielding, fullAttack), dualWielding != 0)
 	{
 		featName = feats.GetFeatName(feat);
 		bonusSys.bonusAddToBonusListWithDescr(&dispIo->bonlist, 2, 0, 114, featName);

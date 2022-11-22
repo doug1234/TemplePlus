@@ -27,7 +27,7 @@ class_feats = {
 1: ("Tempest Defense",),
 2: ("Tempest Ambidexterity",),
 3: ("Tempest Two-Weapon Versatility",),
-5: ("Tempest Spring Attack",),
+5: ("Tempest Two-Weapon Spring Attack",),
 }
 
 class_skills = (skill_balance, skill_climb, skill_craft, skill_jump, skill_tumble)

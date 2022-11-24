@@ -170,8 +170,8 @@ def TempestTwoWeaponVersatilityDamageBonus(attachee, args, evt_obj):
 	if weaponUsed == OBJ_HANDLE_NULL:
 		return 0
 
-	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_weapon_specialization_gauntlet, 2, evt_obj.bonus_list)
-	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_greater_weapon_specialization, 2, evt_obj.bonus_list)
+	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_weapon_specialization_gauntlet, 2, evt_obj.damage_packet.bonus_list)
+	AddBonusFromOtherWeapon(attachee, weaponUsed, feat_greater_weapon_specialization, 2, evt_obj.damage_packet.bonus_list)
 		
 	return 0
 	
@@ -201,22 +201,17 @@ tempest_start_position_y = 0.0
 tempest_start_location = long()
 
 def TempestStandardActionExtraSecondaryAttacks(attachee, args, evt_obj):
-	print "TempestStandardActionExtraSecondaryAttacks"
+	if not IsTwoWeaponFighting(attachee):
+		return 0
 
 	if TempestEncomberedCheck(attachee):
 		return 0
 	
 	moveDistance = args.get_arg(0)
 	
-	print "TempestStandardActionExtraSecondaryAttacks - 1"
-	print moveDistance	
-	
 	if moveDistance <= 5:
 		return 0
-		
-	print "TempestStandardActionExtraSecondaryAttacks - 1"
-	print moveDistance
-	
+
 	evt_obj.return_val = 1
 	return 0
 
@@ -243,6 +238,11 @@ def TempestDistanceMovedReset(attachee, args, evt_obj):
 
 	#Zero out the total distance moved from the start position
 	args.set_arg(0, 0)
+	
+	#Reset the use available flag and the attack made flag
+	args.set_arg(1, 1)
+	args.set_arg(2, 0)
+	
 	return 0
 
 def TempestSpringAttackRadial(attachee, args, evt_obj):
@@ -251,20 +251,16 @@ def TempestSpringAttackRadial(attachee, args, evt_obj):
 
 	if TempestEncomberedCheck(attachee):
 		return 0
-	
-	moveDistance = args.get_arg(0)
-	
-	print "TempestSpringAttackRadial - 1"
-	print moveDistance	
-	
-	if moveDistance <= 5:
+		
+	if not IsTwoWeaponFighting(attachee):
 		return 0
 		
-	print "TempestSpringAttackRadial - 2"
-	print moveDistance
+	if args.get_arg(1) == 0:
+		return 0
 
-	print "Spring Attack"
-	print tempestSpringAttackEnum
+	moveDistance = args.get_arg(0)
+	if moveDistance <= 5:
+		return 0
 
 	radial_action = tpdp.RadialMenuEntryPythonAction("Offhand Attack", D20A_PYTHON_ACTION, tempestSpringAttackEnum, 0, "TAG_INTERFACE_HELP")
 	radial_action.add_child_to_standard(attachee, tpdp.RadialMenuStandardNode.Class)
@@ -274,6 +270,8 @@ def TempestSpringAttackRadial(attachee, args, evt_obj):
 	
 def OnTempestSpringAttackPerform(attachee, args, evt_obj):
 	print "OnTempestSpringAttackPerform"
+
+	args.set_arg(1, 0)
 
 	# roll to hit
 	evt_obj.d20a.flags |= D20CAF_SECONDARY_WEAPON
@@ -292,19 +290,41 @@ def OnTempestSpringAttackPerform(attachee, args, evt_obj):
 	
 
 def TempestSpringAttackActionFrame(attachee, args, evt_obj):
-	print "TempestSpringAttackActionFrame"
-
 	if evt_obj.d20a.flags & D20CAF_HIT:
-		game.create_history_from_id(d20action.roll_id_1)
-		game.create_history_from_id(d20action.roll_id_2)
-		game.create_history_from_id(d20action.roll_id_0)
-		print "Attack Hit Target: " + str(d20action.target)
-		d20action.target.deal_attack_damage(d20action.performer, d20action.data1, d20action.flags, d20action.action_type)
-
+		game.create_history_from_id(evt_obj.d20a.roll_id_1)
+		game.create_history_from_id(evt_obj.d20a.roll_id_2)
+		game.create_history_from_id(evt_obj.d20a.roll_id_0)
+		evt_obj.d20a.target.deal_attack_damage(evt_obj.d20a.performer, evt_obj.d20a.data1, evt_obj.d20a.flags, evt_obj.d20a.action_type)
 	return 0
 
+def TempestSpringAttackToHitBonus2(attachee, args, evt_obj):
+	#Must be a final attack roll
+	if (evt_obj.attack_packet.get_flags() & D20CAF_FINAL_ATTACK_ROLL) != 0:
+		return 0
+		
+	#Not a full attack
+	if (evt_obj.attack_packet.get_flags() & D20CAF_FULL_ATTACK) == 0:
+		return 0
+		
+	#Not a ranged attack
+	if (evt_obj.attack_packet.get_flags() & D20CAF_RANGED) == 0:
+		return 0
+		
+	print "Move distance check..."	
+	
+	moveDistance = args.get_arg(0)
+	if moveDistance <= 5:
+		return 0
+		
+	#Set that a full attack has been on
+	print "Setting to on..."
+	args.set_arg(2, 1)
+	
+	
+		
+	return 0
 
-tempestSpringAttack = PythonModifier("Tempest Two-Weapon Spring Attack", 3) #Move Distance, Spare, Spare
+tempestSpringAttack = PythonModifier("Tempest Two-Weapon Spring Attack", 3) #Move Distance, Can Use, Spare
 tempestSpringAttack.MapToFeat("Tempest Two-Weapon Spring Attack")
 tempestSpringAttack.AddHook(ET_OnD20PythonQuery, "Standard Action Offhand Attack", TempestStandardActionExtraSecondaryAttacks, ())
 tempestSpringAttack.AddHook(ET_OnBeginRound, EK_NONE, TempestDistanceMovedReset, ())
@@ -312,3 +332,4 @@ tempestSpringAttack.AddHook(ET_OnD20Signal, EK_S_Combat_Critter_Moved, TempestDi
 tempestSpringAttack.AddHook(ET_OnBuildRadialMenuEntry, EK_NONE, TempestSpringAttackRadial, ())
 tempestSpringAttack.AddHook(ET_OnD20PythonActionPerform, tempestSpringAttackEnum, OnTempestSpringAttackPerform, ())
 tempestSpringAttack.AddHook(ET_OnD20PythonActionFrame, EK_NONE, TempestSpringAttackActionFrame, ())
+tempestSpringAttack.AddHook(ET_OnToHitBonus2, EK_NONE, TempestTwoWeaponVersatilityAttackBonus, ())

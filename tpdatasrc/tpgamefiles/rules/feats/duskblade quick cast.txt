@@ -1,0 +1,5 @@
+name: Quick Cast
+flags: 8
+prereqs:
+description:  Beginning at 5th level, you can cast one spell each day as a swift action, so long as the casting time of the spell is 1 standard action or less.  You can use this ability twice per day at 10th level, three times per day at 15th level, and four times per day at 20th level.
+prereq descr: Duskblade Level 5.

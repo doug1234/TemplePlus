@@ -216,6 +216,8 @@ struct LegacySpellSystem : temple::AddressTable
 	int GetSpellClass(int classEnum, bool isDomain = false); // get spell class from casting class
 	int GetSpellClass(const std::string &s); // get spell class from string specification e.g. class_wizard (used in protos.tab parsing)
 	bool IsArcaneSpellClass(uint32_t spellClass);
+	bool IsTouchAttackSpell(int spellEnum);
+	int GetTouchAttackChargeEnum(int spellEnum);
 	int GetSpellSchool(int spellEnum);
 
 	// Special Spell Enums
@@ -326,6 +328,7 @@ private:
 		bool SpellEntryFileParse(SpellEntry & spEntry, TioFile *tf);
 
 	std::map<int, std::vector<SpellMultiOption>> mMultiOptions;
+	std::map<int, int> touchSpellEffects;
 	void GetSpellEntryExtFromClassSpec(std::map<int, int>& mapping, int classEnum);
 
 	uint32_t(__cdecl * _getSpellCountByClassLvl)();

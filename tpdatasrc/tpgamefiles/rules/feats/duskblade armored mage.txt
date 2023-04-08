@@ -1,0 +1,5 @@
+name: Duskblade Armored Mage
+flags: 8
+prereqs:
+description:  A duskblade's limited focus and specialized training, allows him to avoid arcane spell failure with light armor and light shields. At 4th level, he learns to use medium armor with no chance of arcane spell failure.  At 7th level, he learns to use a heavy shield with no chance of arcane spell failure.
+prereq descr: Duskblade Level 1.

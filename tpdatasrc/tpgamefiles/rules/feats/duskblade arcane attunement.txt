@@ -1,0 +1,5 @@
+name: Arcane Attunement
+flags: 8
+prereqs:
+description:  You can use the spell-like powers dancing lights, detect magic, are, ghost sound, and read magic a combined total of times per day equal to 3 + your Int modier. These spell-like powers do not count against your total of spells known or spells per day.
+prereq descr: Duskblade Level 1.

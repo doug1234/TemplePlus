@@ -1605,6 +1605,54 @@ static PyObject* PyObjHandle_ReputationHas(PyObject* obj, PyObject* args) {
 	return result;
 }
 
+static PyObject* PyObjHandle_RemoveSpellCondition(PyObject* obj, PyObject* args) {
+	int conditionId;
+	if (!PyArg_ParseTuple(args, "i:objhndl.remove_spell_condition", &conditionId)) {
+		return 0;
+	}
+
+	auto cond = spellSys.GetCondFromSpellCondId(conditionId);
+
+	if (cond == nullptr) {
+		return PyInt_FromLong(0);
+	}
+
+	auto self = GetSelf(obj);
+	auto dispatcher = gameSystems->GetObj().GetObject(self->handle)->GetDispatcher();
+	auto condTmp = dispatcher->conditions;
+
+	for (; condTmp; condTmp = condTmp->nextCondNode) {
+		if (condTmp->IsExpired())
+			continue;
+
+		if (condTmp->condStruct == cond) {
+			conds.ConditionRemove(self->handle, condTmp);
+			return PyInt_FromLong(1);
+		}
+	}
+
+	return PyInt_FromLong(0);
+}
+
+static PyObject* PyObjHandle_AddSpellCondition(PyObject* obj, PyObject* args) {
+	int conditionId;
+	if (!PyArg_ParseTuple(args, "i:objhndl.add_spell_condition", &conditionId)) {
+		return 0;
+	}
+
+	auto cond = spellSys.GetCondFromSpellCondId(conditionId);
+
+	if (cond == nullptr) {
+		return PyInt_FromLong(0);
+	}
+
+	auto self = GetSelf(obj);
+
+	conds.AddTo(self->handle, cond->condName, {});
+
+	return PyInt_FromLong(0);
+}
+
 static PyObject* PyObjHandle_ReputationAdd(PyObject* obj, PyObject* args) {
 	int reputationId;
 	if (!PyArg_ParseTuple(args, "i:objhndl.reputation_add", &reputationId)) {
@@ -1781,6 +1829,51 @@ static PyObject* PyObjHandle_ConditionAddWithArgs(PyObject* obj, PyObject* args)
 	vector<int> condArgs;
 	if (!ParseCondNameAndArgs(args, cond, condArgs)) {
 		return 0;
+	}
+
+	auto result = conds.AddTo(self->handle, cond, condArgs);
+	return PyInt_FromLong(result);
+}
+
+static PyObject* PyObjHandle_ConditionAddWithObject(PyObject* obj, PyObject* args) {
+	auto self = GetSelf(obj);
+
+	//Get the condition name
+	auto condName = PyString_AsString(PyTuple_GET_ITEM(args, 0));
+	auto cond = conds.GetByName(condName);
+	if (!cond) {
+		PyErr_Format(PyExc_ValueError, "Unknown condition name: %s", condName);
+		return false;
+	}
+
+	vector<int> condArgs;
+
+	// Following arguments all have to be integers or objects and gel with the condition argument count
+	unsigned int i = 0;
+	while (i < cond->numArgs) {
+		if ((uint32_t)PyTuple_GET_SIZE(args) > i + 1) {
+
+			//Try to handle as an int/long
+			auto item = PyTuple_GET_ITEM(args, i + 1);
+			if (PyLong_Check(item) || PyInt_Check(item)) {
+				condArgs.push_back(PyLong_AsLong(item));
+				i++;
+			}
+			else {
+				//Is it an object?
+				objHndl object;
+				if (!ConvertObjHndl(item, &object)) {
+					return 0;
+				}
+				condArgs.push_back(object.GetHandleLower());
+				condArgs.push_back(object.GetHandleUpper());
+				i++;
+			}
+		}
+	}
+
+	if (condArgs.size() != cond->numArgs) {
+		PyErr_Format(PyExc_ValueError, "Incorrect number of arguments for condition: %s", condName);
 	}
 
 	auto result = conds.AddTo(self->handle, cond, condArgs);
@@ -4172,6 +4265,26 @@ static PyObject* PyObjHandle_D20SendSignal(PyObject* obj, PyObject* args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject* PyObjHandle_TriggerTouchEffect(PyObject* obj, PyObject* args) {
+	auto self = GetSelf(obj);
+	if (!self->handle) {
+		Py_RETURN_NONE;
+	}
+	objHndl arg = objHndl::null;
+	if (!PyArg_ParseTuple(args, "O&:objhndl.trigger_touch_effect", &ConvertObjHndl, &arg)) {
+		return 0;
+	}
+	D20DispatcherKey dispKey = (D20DispatcherKey)(DK_SIG_HP_Changed + S_TouchAttack);
+	D20Actn d20a(D20A_CAST_SPELL);
+	d20a.d20APerformer = self->handle;
+	d20a.d20ATarget = arg;
+	d20a.d20Caf = D20CAF_HIT;
+
+	d20Sys.d20SendSignal(self->handle, dispKey, &d20a, 0);
+	Py_RETURN_NONE;
+}
+
+
 static PyObject* PyObjHandle_D20SendSignalEx(PyObject* obj, PyObject* args) {
 	auto self = GetSelf(obj);
 	if (!self->handle) {
@@ -4431,6 +4544,7 @@ static PyMethodDef PyObjHandleMethods[] = {
 	{ "action_perform", PyObjHandle_ActionPerform, METH_VARARGS, NULL},
 
 	{ "add_to_initiative", PyObjHandle_AddToInitiative, METH_VARARGS, NULL },
+	{ "add_spell_condition", PyObjHandle_RemoveSpellCondition, METH_VARARGS, NULL },
 	{ "ai_flee_add", PyObjHandle_AiFleeAdd, METH_VARARGS, NULL },
 	{ "ai_follower_add", PyObjHandle_AiFollowerAdd, METH_VARARGS, NULL },
 	{ "ai_follower_remove", ReturnZero, METH_VARARGS, NULL },
@@ -4477,6 +4591,7 @@ static PyMethodDef PyObjHandleMethods[] = {
 	{ "concealed_set", PyObjHandle_ConcealedSet, METH_VARARGS, NULL },
 	{ "condition_add_with_args", PyObjHandle_ConditionAddWithArgs, METH_VARARGS, NULL },
 	{ "condition_add", PyObjHandle_ConditionAddWithArgs, METH_VARARGS, NULL },
+	{ "condition_add_with_object", PyObjHandle_ConditionAddWithObject, METH_VARARGS, NULL },
 	{ "conditions_get", PyObjHandle_ConditionsGet, METH_VARARGS, NULL },
 	{ "container_flags_get", GetFlags<obj_f_container_flags>, METH_VARARGS, NULL },
 	{ "container_flag_set", SetFlag<obj_f_container_flags>, METH_VARARGS, NULL },
@@ -4644,6 +4759,7 @@ static PyMethodDef PyObjHandleMethods[] = {
 	{ "refresh_turn", PyObjHandle_RefreshTurn, METH_VARARGS, NULL },
 	{ "reputation_has", PyObjHandle_ReputationHas, METH_VARARGS, NULL },
 	{ "reputation_add", PyObjHandle_ReputationAdd, METH_VARARGS, NULL },
+	{ "remove_spell_condition", PyObjHandle_RemoveSpellCondition, METH_VARARGS, NULL },
 	{ "remove_from_initiative", PyObjHandle_RemoveFromInitiative, METH_VARARGS, NULL },
 	{ "reputation_remove", PyObjHandle_ReputationRemove, METH_VARARGS, NULL },
 	{ "resurrect", PyObjHandle_Resurrect, METH_VARARGS, NULL },
@@ -4687,6 +4803,7 @@ static PyMethodDef PyObjHandleMethods[] = {
 
 	{"turn_towards", PyObjHandle_TurnTowards, METH_VARARGS, NULL},
 	{"trip_check", PyObjHandle_TripCheck, METH_VARARGS, NULL },
+	{"trigger_touch_effect", PyObjHandle_TriggerTouchEffect, METH_VARARGS, NULL },
 
 	{ "unconceal", PyObjHandle_Unconceal, METH_VARARGS, NULL },
 	{ "use_item", PyObjHandle_UseItem, METH_VARARGS, NULL },

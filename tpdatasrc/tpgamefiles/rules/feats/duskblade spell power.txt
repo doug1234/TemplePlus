@@ -1,0 +1,5 @@
+name: Spell Power
+flags: 8
+prereqs:
+description:   Starting at 6th level, you can more easily overcome the spell resistance of any opponent you successfully injure with a melee attack. If you have injured an opponent with a melee attack, you gain a +2 bonus on your caster level check to overcome spell resistance for the remainder of the encounter. This bonus increases to +3 at 11th level, to +4 at 16th level, and to +5 at 18th level.
+prereq descr: Duskblade Level 6.

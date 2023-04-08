@@ -883,6 +883,7 @@ PYBIND11_EMBEDDED_MODULE(tpdp, m) {
 			.def_readwrite("dc", &SpellPacketBody::dc)
 			.def_readwrite("loc", &SpellPacketBody::aoeCenter)
 			.def_readwrite("caster", &SpellPacketBody::caster)
+			.def_readwrite("target_count", &SpellPacketBody::targetCount)
 			.def("get_spell_casting_class", [](SpellPacketBody&pkt) {
 				return static_cast<int>(spellSys.GetCastingClass(pkt.spellClass));
 				})
@@ -954,6 +955,12 @@ PYBIND11_EMBEDDED_MODULE(tpdp, m) {
 			.def("float_spell_line", [](SpellPacketBody& pkt, objHndl handle, int lineId, int color){
 				auto color_ = (FloatLineColor)color;
 				floatSys.FloatSpellLine(handle, lineId, color_);
+			})
+			.def("get_touch_attach_charge_enum", [](SpellPacketBody& pkt)->int {
+				return spellSys.GetTouchAttackChargeEnum(pkt.spellEnum);
+			})
+			.def("spell_end", [](SpellPacketBody&pkt) {
+				spellSys.SpellEnd(pkt.spellId, 1);
 			})
 			;
 

@@ -2892,6 +2892,22 @@ bool LegacySpellSystem::IsArcaneSpellClass(uint32_t spellClass)
 	return false;
 }
 
+bool LegacySpellSystem::IsTouchAttackSpell(int spellEnum)
+{
+	return touchSpellEffects.find(spellEnum) != touchSpellEffects.end();
+}
+
+int LegacySpellSystem::GetTouchAttackChargeEnum(int spellEnum)
+{
+	auto effect = touchSpellEffects.find(spellEnum);
+
+	if (touchSpellEffects.find(spellEnum) == touchSpellEffects.end()) {
+		return -1;
+	}
+
+	return effect->second;
+}
+
 int LegacySpellSystem::GetSpellSchool(int spellEnum){
 	SpellEntry spEntry(spellEnum);
 	if (!spEntry.spellEnum)

@@ -34,6 +34,7 @@
 {47}{Warmage}
 {48}{Beguiler}
 {49}{Swashbuckler}
+{50}{Duskblade}
 
 // Psionic Classes
 {58}{Psion}
@@ -104,7 +105,7 @@
 {1047}{Wrmg}
 {1048}{Bglr}
 {1049}{Swbk}
-{1050}{}
+{1050}{Dsbl}
 {1051}{}
 {1052}{}
 {1053}{}
@@ -318,6 +319,7 @@ Special:  Can cast 1st-level arcane spells and knows 1 abjuration spell of first
 {13040}Warmage{A warmage is a militant spellcaster whose training focuses on battlefield magic.}
 {13041}Beguiler{A beguiler is a spellcaster who delights in manipulating others, either to their disadvantage or for their own good.}
 {13042}Swashbuckler{The swashbuckler embodies the concepts of daring and panache.}
+{13043}Duskblade{A duskblade is both a arcane spellcaster who zaps your enemies with powerful spells and a nimble, powerful front-line melee character who lays them low with a sword.}
 {13075}Fochlucan Lyrist{The Fochlucan lyrist is a Warrior, thief, spy, poet and woodland champion.
 
 Requirements: Alignment NG/TN/CN/NE.

@@ -1211,11 +1211,20 @@ static PyObject* PySpellStore_IsUsedUp(PyObject* obj, PyObject* args) {
 	return PyInt_FromLong(self->spellData.spellStoreState.usedUp & 1);
 }
 
+static PyObject* PySpellStore_IsTouchAttackSpell(PyObject* obj, PyObject* args) {
+	auto self = (PySpellStore*)obj;
+	if (!self->spellData.spellEnum)
+		return PyInt_FromLong(0);
+	
+	return PyInt_FromLong(spellSys.IsTouchAttackSpell(self->spellData.spellEnum) ? 1 : 0);
+}
+
 static PyMethodDef PySpellStoreMethods[] = {
 	{"is_area_spell", PySpellStore_IsAreaSpell, METH_VARARGS, NULL },
 	{"is_mode_target", PySpellStore_IsModeTarget, METH_VARARGS, NULL },
 	{"is_naturally_cast", PySpellStore_IsNaturallyCast, METH_VARARGS, NULL },
 	{"is_used_up", PySpellStore_IsUsedUp, METH_VARARGS, NULL },
+	{"is_touch_attack_spell", PySpellStore_IsTouchAttackSpell, METH_VARARGS, NULL },
 	{ NULL, NULL, NULL, NULL }
 };
 

@@ -2008,6 +2008,7 @@ enum Stat : uint32_t {
 	stat_level_warmage = 47,
 	stat_level_beguilers = 48,
 	stat_level_swashbuckler = 49,
+    stat_level_duskblade = 50,
 
 	stat_level_psion = 58,
 	stat_level_psychic_warrior = 59,

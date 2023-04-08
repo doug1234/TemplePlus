@@ -1,0 +1,5 @@
+name: Arcane Channeling
+flags: 8
+prereqs:
+description:  Beginning at 3rd level, you can use a standard action to cast any touch spell you know and deliver the spell through your weapon with a melee attack. Casting a spell in this manner does not provoke attacks of opportunity. The spell must have a casting time of 1 standard action or less. If the melee attack is successful, the attack deals damage normally; then the effect of the spell is resolved.
+prereq descr: Duskblade Level 3

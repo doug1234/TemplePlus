@@ -289,9 +289,9 @@ void XPTableForHighLevels::apply() {
 	replaceFunction<int(__cdecl)(int)>(0x10080300, [](int xp)->int {
 		int maxLvl = (int)config.maxLevel;
 		auto xpMaxLvl = d20LevelSys.GetXpRequireForLevel(maxLvl);
-		if (xp <= xpMaxLvl) {
+		if (xp <= static_cast<int>(xpMaxLvl)) {
 			for (int lvl = maxLvl; lvl > 0; --lvl) {
-				if (xp >= d20LevelSys.GetXpRequireForLevel(lvl)) {
+				if (xp >= static_cast<int>(d20LevelSys.GetXpRequireForLevel(lvl))) {
 					return lvl;
 				}
 			}

@@ -970,7 +970,7 @@ PyObject* PyGame_MouseMoveTo(PyObject*, PyObject* args)
 		logger->info("mouse_move_to: location {}, {}", targetLoc.locx, targetLoc.locy);
 		auto worldPos = targetLoc.ToInches3D();
 		auto uiPos = gameView->WorldToScreenUi(worldPos);
-		x = uiPos.x; y = uiPos.y;
+		x = static_cast<int>(uiPos.x); y = static_cast<int>(uiPos.y);
 	}
 	
 	mouseFuncs.SetPos(x, y, 0);

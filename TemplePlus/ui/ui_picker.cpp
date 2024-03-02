@@ -254,9 +254,9 @@ void UiPicker::SetConeTargets(LocAndOffsets* mouseLoc, PickerArgs* pickerArgs)
 
 	
 	if (!(pickerArgs->flagsTarget & UiPickerFlagsTarget::FixedRadius)){
-		rangeInches = locSys.Distance3d(coneTgtLoc, coneOrigin);
+		rangeInches = static_cast<int>(locSys.Distance3d(coneTgtLoc, coneOrigin));
 	}
-	pickRes.objList.ListRadius(coneOrigin, rangeInches, angleStart, angleSize, OLC_ALL);
+	pickRes.objList.ListRadius(coneOrigin, static_cast<float>(rangeInches), static_cast<float>(angleStart), static_cast<float>(angleSize), OLC_ALL);
 
 	if (! (pickerArgs->flagsTarget & UiPickerFlagsTarget::Unknown80h)){
 		temple::GetRef<void(__cdecl)(LocAndOffsets &, PickerArgs*)>(0x100B9F60)(coneOrigin, pickerArgs); // raycasting etc.
@@ -440,7 +440,7 @@ void UiPicker::RenderPickers(){
 		auto areaRadiusInch = INCH_PER_FEET * pick.args.radiusTarget;
 
 		// Draw the big AoE circle
-		DrawCircleAoE(tgtLoc, 1.0, areaRadiusInch, pick.args.spellEnum);
+		DrawCircleAoE(tgtLoc, 1.0f, static_cast<float>(areaRadiusInch), pick.args.spellEnum);
 
 
 		// Draw Spell Effect pointer (points from AoE to caster)
@@ -454,14 +454,14 @@ void UiPicker::RenderPickers(){
 		}
 
 		if (originRadius * 1.5f + areaRadiusInch  + spellEffectPointerSize < locSys.distBtwnLocAndOffs(tgtLoc, originLoc)){
-			DrawSpellEffectPointer(tgtLoc, originLoc, areaRadiusInch);
+			DrawSpellEffectPointer(tgtLoc, originLoc, static_cast<float>(areaRadiusInch));
 		}	
 	}
 
 	else if (pick.args.IsBaseModeTarget(UiPickerType::Personal)){
 		if (tgt && (pick.args.flagsTarget &UiPickerFlagsTarget::Radius) && tgt == originator){
 
-			DrawCircleAoE(originLoc, 1.0, INCH_PER_FEET * pick.args.radiusTarget, pick.args.spellEnum);
+			DrawCircleAoE(originLoc, 1.0f, static_cast<float>(INCH_PER_FEET * pick.args.radiusTarget), pick.args.spellEnum);
 
 		}
 	}
@@ -495,7 +495,7 @@ void UiPicker::RenderPickers(){
 		}
 
 		if (pick.args.flagsTarget & UiPickerFlagsTarget::FixedRadius) {
-			tgtLoc = locSys.TrimToLength(coneOrigin, tgtLoc, pick.args.radiusTarget * INCH_PER_FEET);
+			tgtLoc = locSys.TrimToLength(coneOrigin, tgtLoc, static_cast<float>(pick.args.radiusTarget * INCH_PER_FEET));
 		}
 
 		DrawConeAoE(coneOrigin, tgtLoc, degreesTarget, pick.args.spellEnum);
@@ -705,13 +705,14 @@ BOOL UiPicker::WallPosChange(TigMsg * msg){
 	auto maxRange = INCH_PER_FEET * pick.args.range;
 	auto dist = locSys.distBtwnLocAndOffs(mouseLoc, pick.args.result.location);
 	if (maxRange > dist)
-		maxRange = dist;
+		maxRange = static_cast<int>(dist);
 
 	if (wallState == WallPicker_EndPoint) {
 
 		// get radius and range up to mouse (trimmed by walls and such)
 		auto radiusInch = pick.args.radiusTarget * INCH_PER_FEET / 2.0f;	
-		pick.args.GetTrimmedRange(pick.args.result.location, mouseLoc, radiusInch, maxRange, INCH_PER_FEET * 5.0);
+		pick.args.GetTrimmedRange(pick.args.result.location, mouseLoc, radiusInch, 
+			static_cast<float>(maxRange), static_cast<float>(INCH_PER_FEET * 5.0));
 		pick.args.degreesTarget = 2.3561945f - locSys.AngleBetweenPoints(pick.args.result.location, mouseLoc); // putting this in radians, unlike the usual usage
 
 		pick.args.GetTargetsInPath(pick.args.result.location, mouseLoc, radiusInch);

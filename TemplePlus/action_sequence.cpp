@@ -3484,11 +3484,11 @@ int ActionSequenceSystem::TouchAttackAddToSeq(D20Actn* d20a, ActnSeq* actSeq, Tu
 
 	d20a->d20ActType = D20A_TOUCH_ATTACK;
 	auto spellId = d20Sys.d20QueryReturnData(d20a->d20APerformer, DK_QUE_HoldingCharge, 0u, 0u);
-	d20a->spellId = spellId;
+	d20a->spellId = static_cast<uint32_t>(spellId);
 
 	auto reach = critterSys.GetReach(d20a->d20APerformer, d20a->d20ActType);
 	if (locSys.DistanceToObj(d20a->d20APerformer, d20a->d20ATarget) > reach) {
-		SpellPacketBody spPkt(spellId);
+		SpellPacketBody spPkt(static_cast<uint32_t>(spellId));
 		const int PRODUCE_FLAME_ENUM = 364;
 		if (!spPkt.spellEnum || spPkt.spellEnum != PRODUCE_FLAME_ENUM) {
 			return AddToSeqWithTarget(d20a, actSeq, tbStat);
@@ -3740,7 +3740,7 @@ int ActionSequenceSystem::UnspecifiedAttackAddToSeq(D20Actn* d20a, ActnSeq* actS
 			max(0.0f, minReach + locSys.InchesToFeet(INCH_PER_SUBTILE / 2))
 			: 0.0f;
 		int result = MoveSequenceParse(&d20aCopy, actSeq, tbStat, 
-			polearmDonutReach ? distToTgtMin : 0.0, reach, 1);
+			polearmDonutReach ? distToTgtMin : 0.0f, reach, 1);
 		if (result)
 			return result;
 		tbStatCopy = *tbStat;

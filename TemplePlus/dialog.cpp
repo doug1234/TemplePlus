@@ -464,7 +464,7 @@ void DialogHooks::MapFirstSeenBanter(int mapId)
 
 	// Temple+: now uses vector instead of fixes size[3] array
 	std::vector<objHndl> commentNpcs;
-	for (auto i = 0; i < npcCount; ++i) {
+	for (auto i = 0u; i < npcCount; ++i) {
 		auto npc = party.GroupNPCFollowersGetMemberN(i);
 		auto fellowPc = party.GetFellowPc(npc);
 		GetMapFirstSeenVoiceLine(npc, fellowPc, mapId, text, soundId);
@@ -493,7 +493,7 @@ void DialogHooks::MapFirstSeenBanter(int mapId)
 	// Append to seen map list
 	static auto SeenMaplistAppend = temple::GetRef<void(__cdecl)(objHndl, int)>(0x10080390);
 	auto partySize = party.GroupListGetLen();
-	for (auto i = 0; i < partySize; ++i) {
+	for (auto i = 0u; i < partySize; ++i) {
 		auto partyMem = party.GroupListGetMemberN(i);
 		SeenMaplistAppend(partyMem, mapId);
 	}

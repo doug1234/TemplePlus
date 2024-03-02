@@ -418,9 +418,9 @@ void UiIntegameTurnbasedRepl::UiIntgameGenerateSequence(int isUnnecessary) {
 			auto raycastFlags = GameRaycastFlags::GRF_ExcludeUnconscious | GameRaycastFlags::GRF_ExcludePortals |
 				GameRaycastFlags::GRF_ExcludeItems | GameRaycastFlags::GRF_HITTEST_SEL_CIRCLE;
 
-			if (!PickObjectOnScreen(x, y, &objFromRaycast, raycastFlags)){
+			if (!PickObjectOnScreen(static_cast<int>(x), static_cast<int>(y), &objFromRaycast, raycastFlags)){
 				objFromRaycast = objHndl::null;
-				locSys.GetLocFromScreenLocPrecise(x, y, locFromScreenLoc);
+				locSys.GetLocFromScreenLocPrecise(static_cast<int>(x), static_cast<int>(y), locFromScreenLoc);
 				actionLoc = locFromScreenLoc;
 
 				if (UiIntgameLocIsFarFromDesignatedLoc(locFromScreenLoc)){
@@ -439,9 +439,9 @@ void UiIntegameTurnbasedRepl::UiIntgameGenerateSequence(int isUnnecessary) {
 	else{
 		auto raycastFlags = GameRaycastFlags::GRF_HITTEST_3D | GameRaycastFlags::GRF_ExcludePortals;
 		auto prevRaycastTgt = objFromRaycast;
-		if (!PickObjectOnScreen(x, y, &objFromRaycast, raycastFlags)) {
+		if (!PickObjectOnScreen(static_cast<int>(x), static_cast<int>(y), &objFromRaycast, raycastFlags)) {
 			objFromRaycast = objHndl::null;
-			locSys.GetLocFromScreenLocPrecise(x, y, locFromScreenLoc);
+			locSys.GetLocFromScreenLocPrecise(static_cast<int>(x), static_cast<int>(y), locFromScreenLoc);
 			actionLoc = *intgameAddresses.locFromScreenLoc;
 		}
 		if (objFromRaycast != prevRaycastTgt) {
@@ -452,7 +452,7 @@ void UiIntegameTurnbasedRepl::UiIntgameGenerateSequence(int isUnnecessary) {
 	
 
 	auto mouseLoc = LocAndOffsets::null;
-	locSys.GetLocFromScreenLocPrecise(x, y, mouseLoc);
+	locSys.GetLocFromScreenLocPrecise(static_cast<int>(x), static_cast<int>(y), mouseLoc);
 	auto subTile = locSys.subtileFromLoc(&mouseLoc);
 
 	auto canGenerate = objFromRaycast != objHndl::null;
@@ -917,7 +917,7 @@ void UiIntegameTurnbasedRepl::UiDrawAoOThreatRanges()
 
 	static auto aooPossibleTest = temple::GetRef<BOOL(__cdecl)(objHndl)>(0x10173B30);
 
-	for (auto i = 0; i < N; ++i) {
+	for (auto i = 0; i < static_cast<int>(N); ++i) {
 		auto combatant = combatSys.GetInitiativeListMember(i);
 		if (!combatant) continue;
 		

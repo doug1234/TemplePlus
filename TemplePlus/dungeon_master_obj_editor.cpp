@@ -289,7 +289,7 @@ void DungeonMaster::RenderEditedObj() {
 				continue;
 			skillRnkChang.push_back(it.second / 2.0f);
 			if (ImGui::InputFloat(skillSys.GetSkillName(skill), &skillRnkChang[skillIdx], 0.5f, 1.0f, 1)) {
-				critEditor.skillRanks[skill] = round(2.0 * skillRnkChang[skillIdx]);
+				critEditor.skillRanks[skill] = static_cast<int>(round(2.0 * skillRnkChang[skillIdx]));
 			}
 			skillIdx++;
 		}
@@ -375,7 +375,7 @@ void DungeonMaster::RenderEditedObj() {
 				else {
 
 					auto subfeatNameGetter = [](void* data, int idx, const char** outTxt)->bool {
-						if (idx >= childFeats.size())
+						if (idx >= static_cast<int>(childFeats.size()))
 							return false;
 						auto feat = static_cast<feat_enums>(childFeats[idx]);
 						*outTxt = feats.GetFeatName(feat);

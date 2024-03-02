@@ -827,7 +827,7 @@ void GameObjectBody::PruneNullInventoryItems()
 		logger->error("Inventory array count does not equal associated num field.  Array: {}, Field: {}", invenCount, invenCountFromField);
 	}
 
-	for (auto i = 0; i < invenCount; ++i) {
+	for (size_t i = 0; i < invenCount; ++i) {
 		auto item = GetObjHndl(invenField, i);
 		if (!item) {
 			logger->error("PruneNullInventoryItems: null inventory item (idx {}) on {}!", i, handle);

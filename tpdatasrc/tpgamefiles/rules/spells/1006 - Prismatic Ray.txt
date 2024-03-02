@@ -5,7 +5,7 @@ Component: V
 Component: S
 Casting Time: 1 action
 Range: Medium
-Saving Throw: Yes
+Saving Throw: No
 Spell Resistance: Yes
 Projectile: Yes
 flags_Target: Range

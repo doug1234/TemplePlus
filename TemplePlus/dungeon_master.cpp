@@ -1340,7 +1340,7 @@ void DungeonMaster::RenderActiveSpells()
 			ImGui::Text(fmt::format("Duration: {}/{}", pkt.durationRemaining, pkt.duration).c_str());
 			
 			if (ImGui::TreeNode(fmt::format("Targets: {} (initially {})", pkt.targetCount, pkt.orgTargetCount).c_str() )) {
-				for (auto i = 0; i < pkt.targetCount; ++i) {
+				for (auto i = 0u; i < pkt.targetCount; ++i) {
 					ImGui::Text(fmt::format("{}: {} partsysId: {}", i, pkt.targetListHandles[i], pkt.targetListPartsysIds[i]).c_str());
 				}
 				ImGui::TreePop();

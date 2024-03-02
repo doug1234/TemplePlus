@@ -3325,7 +3325,7 @@ bool RaceChargen::WidgetsInit(int w, int h){
 		auto newBtn = make_unique<ChargenPagedButton>();
 		newBtn->SetPos(x, y);
 		
-		for (auto i= it; i < d20RaceSys.selectableBaseRaces.size(); i+= 7){
+		for (int i= it; i < static_cast<int>(d20RaceSys.selectableBaseRaces.size()); i+= 7){
 			auto race = (RaceBase)d20RaceSys.selectableBaseRaces[i];
 			auto raceName = toupper(d20Stats.GetRaceName((Race)race));
 			if (i == it)

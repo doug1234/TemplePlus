@@ -1,6 +1,5 @@
 School: Illusion
 Subschool: Figment
-Level: Beg 4
 Level: Brd 4
 Level: Sor 4
 Level: Wiz 4

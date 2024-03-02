@@ -157,12 +157,12 @@ float GetJitterTimePeriod(int elapsedMs) {
 void LightningRendererImpl::CalculateLineJitter(int elapsedMs, int segments, float lengthPerSegment, float noiseY) {
 	
 	auto timePeriod = GetJitterTimePeriod(elapsedMs);
-	mJitterArray[0] = PerlinNoise2D(timePeriod, noiseY) * MaxJitterOffset;
+	mJitterArray[0] = static_cast<float>(PerlinNoise2D(timePeriod, noiseY) * MaxJitterOffset);
 
 	for (auto i = 0; i < segments; ++i) {
 		auto y = i / (720.f / lengthPerSegment - 1.0f) * 720.f / 400.f + noiseY;
 		auto absOffset = PerlinNoise2D(timePeriod, y) * MaxJitterOffset;
-		mJitterArray[i] = absOffset - mJitterArray[0];
+		mJitterArray[i] = static_cast<float>(absOffset) - mJitterArray[0];
 	}
 
 	// The start of the chain-lightning should not be offset, it should be anchored at the caster
@@ -230,7 +230,7 @@ void LightningRendererImpl::RenderChainLightning()
 
 			auto normal = XMFLOAT3(-line.z, 0, line.x); // Normal to the line on the XZ plane (floor plane)
 
-			auto colorRamp = cosf( (tgtElapsed % Duration) / (float)(Duration-1) * M_PI_2 );
+			auto colorRamp = cosf( static_cast<float>((tgtElapsed % Duration) / (float)(Duration-1) * M_PI_2 ));
 
 			auto segments = min(MaxLineSegments, (int) roundf(lineLength / LineSegmentLength)); // fixes issue where out of bounds was reached; will now cap at 600 and make longer segments if arc is longer
 

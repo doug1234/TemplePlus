@@ -612,7 +612,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>GSL_THROW_ON_CONTRACT_VIOLATION;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;$(MSBuildDefines);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;GSL_THROW_ON_CONTRACT_VIOLATION;_SCL_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS;$(MSBuildDefines);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;$(SolutionDir)dependencies\include;$(SolutionDir)MinHook\include;$(SolutionDir)Infrastructure\include;$(SolutionDir)D3D8Adapter\include</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
@@ -623,6 +623,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -633,6 +634,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies\lib;$(TargetDir)</AdditionalLibraryDirectories>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DelayLoadDLLs>d2d1.dll;psapi.dll;crypt32.dll;ws2_32.dll;oleaut32.dll;shell32.dll;advapi32.dll;gdi32.dll;user32.dll;tio.dll;winmm.dll;shlwapi.dll;ole32.dll;D3dcompiler_47.dll</DelayLoadDLLs>
+      <AdditionalOptions>/ignore:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Manifest>
       <EnableDpiAwareness>false</EnableDpiAwareness>
@@ -677,7 +679,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>GSL_THROW_ON_CONTRACT_VIOLATION;_SCL_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;$(MSBuildDefines);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING;GSL_THROW_ON_CONTRACT_VIOLATION;_SCL_SECURE_NO_WARNINGS;WIN32;NDEBUG;_WINDOWS;$(MSBuildDefines);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.;$(SolutionDir)dependencies\include;$(SolutionDir)MinHook\include;$(SolutionDir)Infrastructure\include;$(SolutionDir)D3D8Adapter\include</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <ForcedIncludeFiles>
@@ -687,6 +689,7 @@
       </DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

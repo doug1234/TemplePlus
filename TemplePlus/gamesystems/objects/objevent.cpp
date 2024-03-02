@@ -514,7 +514,7 @@ LocAndOffsets ObjEventAoE::GetWallEndpoint(){
 	auto wallEndpt = aoeObjLoc;
 	// use startPt + angleMin to find endPt
 	auto vectorAngle = 5 * M_PI / 4 - angleMin;
-	XMFLOAT2 dir(cos(vectorAngle), sin(vectorAngle));
+	XMFLOAT2 dir(static_cast<float>(cos(vectorAngle)), static_cast<float>(sin(vectorAngle)));
 	wallEndpt.off_x += dir.x * radiusInch;
 	wallEndpt.off_y += dir.y * radiusInch;
 	wallEndpt.Regularize();

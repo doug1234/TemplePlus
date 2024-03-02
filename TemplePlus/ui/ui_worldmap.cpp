@@ -573,7 +573,7 @@ BOOL WorldmapFix::UiWorldmapMakeTripCdecl(int fromId, int toId) {
 
 		auto deltaX = fromX - toX;
 		auto deltaY = fromY - toY;
-		mTrailDotCount = sqrt(deltaY*deltaY + deltaX * deltaX) / 12 + 1;
+		mTrailDotCount = static_cast<int>(sqrt(deltaY*deltaY + deltaX * deltaX) / 12.0) + 1;
 		if (mTrailDotCount >= TRAILDOT_MAX){ // fixes crash
 			mTrailDotCount = 80;
 		}

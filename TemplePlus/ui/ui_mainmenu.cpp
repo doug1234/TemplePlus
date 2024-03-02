@@ -431,10 +431,10 @@ ViewCinematicsDialog::ViewCinematicsDialog()
 	WidgetDoc doc = WidgetDoc::Load("templeplus/ui/main_menu_cinematics.json");
 
 	doc.GetButton("view")->SetClickHandler([this]() {
-		if (mSelection < 0 || mSelection >= seenIndices.size())
+		if (mSelection < 0 || mSelection >= static_cast<int>(seenIndices.size()))
 			return;
 		auto movieIdx = seenIndices[mSelection];
-		if (movieIdx < 0 || movieIdx >= movieIds.size())
+		if (movieIdx < 0 || movieIdx >= static_cast<int>(movieIds.size()))
 			return;
 		auto movieId = movieIds[movieIdx];
 		movieFuncs.PlayMovieId(movieId, 0, 0);
@@ -463,14 +463,14 @@ void ViewCinematicsDialog::Show()
 	seenIndices.clear();
 
 
-	for (auto i = 0; i < movieIds.size(); i++) {
+	for (size_t i = 0; i < movieIds.size(); i++) {
 		if (IsMovieSeen(movieIds[i])){
 			seenIndices.push_back(i);
 		}
 	}
 
 	int y = 0;
-	for (int i = 0; i < seenIndices.size(); i++) {
+	for (size_t i = 0; i < seenIndices.size(); i++) {
 		auto movieInd = seenIndices[i];
 
 		auto button = std::make_unique<WidgetButton>();
@@ -501,7 +501,7 @@ void ViewCinematicsDialog::Select(int idx){
 	}
 
 	mSelection = idx;
-	if (mSelection >= 0 && mSelection < btnIds.size()) {
+	if (mSelection >= 0 && mSelection < static_cast<int>(btnIds.size())) {
 	auto pBtn = (WidgetButton*)uiManager->GetAdvancedWidget(btnIds[mSelection]);
 	pBtn->SetStyle("mm-cinematics-list-button-selected");
 	}

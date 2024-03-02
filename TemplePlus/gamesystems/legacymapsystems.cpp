@@ -113,8 +113,8 @@ void LocationSystem::CenterOnSmooth(int tileX, int tileY) {
 	auto scrollButter = temple::GetRef<int>(0x102AC238);
 
 	if (scrollButter && sqrt(deltay*deltay + deltax*deltax) <= 2400.0){ // fixed: didn't check for non-zero scroll butter in vanilla, which would cause this thing to fail (i.e. when Scroll Acceleration was disabled)
-		temple::GetRef<int>(0x10307338) = deltay; //map_scroll_rate_y
-		temple::GetRef<int>(0x10307370) = deltax; //map_scroll_rate_x
+		temple::GetRef<int>(0x10307338) = static_cast<int>(deltay); //map_scroll_rate_y
+		temple::GetRef<int>(0x10307370) = static_cast<int>(deltax); //map_scroll_rate_x
 	}
 	else {
 		gameSystems->GetLocation().CenterOn(tileX, tileY);

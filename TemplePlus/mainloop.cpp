@@ -157,14 +157,14 @@ void GameLoop::Run() {
 			// Otherwise the cursor can be 1 pixel beyond the border
 			// TODO should this be generalizedinto GetSceneRect?
 			// test Upper Left corner mapping for roundoff errors
-			auto ul = gameView.MapToScene(sceneRect.x, sceneRect.y);
+			auto ul = gameView.MapToScene(static_cast<int>(sceneRect.x), static_cast<int>(sceneRect.y));
 			if (ul.x < 0)
 				sceneRect.x = ceil(sceneRect.x);
 			if (ul.y < 0)
 				sceneRect.y = ceil(sceneRect.y);
 
 			// test Bottom Right corner mapping for roundoff errors
-			auto br = gameView.MapToScene(sceneRect.x + sceneRect.z, sceneRect.y + sceneRect.w);
+			auto br = gameView.MapToScene(static_cast<int>(sceneRect.x + sceneRect.z), static_cast<int>(sceneRect.y + sceneRect.w));
 			if (br.x >= config.renderWidth)
 				sceneRect.z = floor(sceneRect.z);
 			if (br.y >= config.renderHeight)
@@ -319,7 +319,7 @@ void GameLoop::DoMouseScrolling() {
 
 	static auto sysRefTime = 0;
 	auto now = timeGetTime();
-	if (sysRefTime && (now  < sysRefTime + 16) ){
+	if (sysRefTime && (now  < static_cast<unsigned long>(sysRefTime + 16)) ){
 		auto scrollButter = temple::GetRef<int>(0x102AC238);
 		if (!scrollButter)
 			return;
@@ -468,7 +468,7 @@ void GameLoop::RenderVersion() {
 
 	{
 		auto &overridesUsed = modSupport.GetOverrides();
-		for (auto i = 0; i < overridesUsed.size(); ++i) {
+		for (auto i = 0u; i < static_cast<unsigned long>(overridesUsed.size()); ++i) {
 			auto &txt = overridesUsed[i];
 			auto offset = rect.y;
 			rect = UiRenderer::MeasureTextSize(txt, style);

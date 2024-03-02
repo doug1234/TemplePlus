@@ -490,7 +490,7 @@ int ProtosHooks::ParseSpell(int colIdx, objHndl handle, char* content, obj_f fie
 		auto shouldAddKnown = true;
 		std::vector<int> spellClasses, spellLevels;
 		if (obj->IsCritter() && spellSys.SpellKnownQueryGetData(handle, spEnum, spellClasses, spellLevels)){
-			for (auto i=0; i < spellClasses.size(); i++){
+			for (size_t i=0; i < spellClasses.size(); i++){
 				if (spellClasses[i] == spClass && spellLevels[i] == spLvl){
 					shouldAddKnown = false;
 					break;

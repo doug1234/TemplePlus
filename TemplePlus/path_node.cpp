@@ -1167,8 +1167,8 @@ void PathNodeSys::RenderPathNodes(int tileX1, int tileX2, int tileY1, int tileY2
 	for (auto node = pathNodeList; node; node = node->next) {
 		auto nodeLoc = node->node.nodeLoc;
 		
-		if (nodeLoc.location.locx < tileX1 || nodeLoc.location.locx > tileX2 ||
-			nodeLoc.location.locy < tileY1 || nodeLoc.location.locy > tileY2)
+		if (nodeLoc.location.locx < static_cast<uint32_t>(tileX1) || nodeLoc.location.locx > static_cast<uint32_t>(tileX2) ||
+			nodeLoc.location.locy < static_cast<uint32_t>(tileY1) || nodeLoc.location.locy > static_cast<uint32_t>(tileY2))
 			continue;
 
 		auto pos = nodeLoc.ToInches3D();
@@ -1200,9 +1200,9 @@ void PathNodeSys::RenderPathNodes(int tileX1, int tileX2, int tileY1, int tileY2
 			textEngine.MeasureText(t, nameMetrics);
 
 			TigRect nameRect;
-			nameRect.x = topOfNode.x- nameMetrics.width/2;
+			nameRect.x = static_cast<int>(topOfNode.x)- nameMetrics.width/2;
 			nameRect.width = nameMetrics.width;
-			nameRect.y = topOfNode.y - nameMetrics.height - 2;
+			nameRect.y = static_cast<int>(topOfNode.y) - nameMetrics.height - 2;
 			nameRect.height = nameMetrics.height;
 			textEngine.RenderText(nameRect, t);
 		}

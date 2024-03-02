@@ -295,8 +295,8 @@ int GetPartyHighestCourageBonus(objHndl attachee) {
 			if (!dude)
 				continue;
 			auto dudeBonVal = GetCourageBonus(dude);
-			if (dudeBonVal > bonVal)
-				bonVal = dudeBonVal;
+			if (static_cast<int>(dudeBonVal) > bonVal)
+				bonVal = static_cast<int>(dudeBonVal);
 		}
 		
 	}

@@ -1,5 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 
+#pragma warning (push)
+#pragma warning (disable:5033)
+
 #include <platform/d3d.h>
 
 #include <timeapi.h>
@@ -37,3 +40,5 @@ using fmt::format;
 #include "Python.h"
 #undef _GNU_SOURCE // Defined by python for some reason
 #undef LONG_LONG
+
+#pragma warning (pop)

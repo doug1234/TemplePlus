@@ -67,7 +67,7 @@ float LocationSys::distBtwnLocAndOffs(LocAndOffsets loca, LocAndOffsets locb)
 	int32_t dxi = loca.location.locx - locb.location.locx;
 	dx += (loca.off_x - locb.off_x) + intToFloat(dxi)*sqrt800;
 	dy += (loca.off_y - locb.off_y) + intToFloat(dyi)*sqrt800;
-	 return sqrt(pow(dx, 2) + pow(dy, 2)) ;
+	return static_cast<float>(sqrt(pow(dx, 2) + pow(dy, 2)));
 }
 
 void LocationSys::RegularizeLoc(LocAndOffsets* loc)

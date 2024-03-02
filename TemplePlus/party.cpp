@@ -144,7 +144,7 @@ uint32_t LegacyPartySystem::GetLivingPartyMemberCount()
 {
 	auto N = GroupListGetLen();
 	auto result = 0u;
-	for (auto i=0; i < N; i++){
+	for (uint32_t i=0; i < N; i++){
 		auto partyMem = GroupListGetMemberN(i);
 		if (!critterSys.IsDeadNullDestroyed(partyMem))
 			result++;

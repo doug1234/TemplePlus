@@ -772,7 +772,7 @@ void LegacyCritterSystem::SetWaypointsCount(objHndl critter, int count)
 	obj->ClearArray(obj_f_npc_waypoints_idx);
 	if (count > 0) {
 		obj->SetInt64(obj_f_npc_waypoints_idx, 0, count);
-		for (int idx = 1; idx < count * sizeof(WaypointPacked) / sizeof(int64_t) + 2; idx++)
+		for (int idx = 1; idx < count * static_cast<int>(sizeof(WaypointPacked) / sizeof(int64_t)) + 2; idx++)
 			obj->SetInt64(obj_f_npc_waypoints_idx, idx, 0);
 	}
 }
@@ -2098,7 +2098,7 @@ bool LegacyCritterSystem::CanTwoWeaponFight(objHndl critter)
 	auto weapl = inventory.ItemWornAt(critter, EquipSlot::WeaponSecondary);
 
 	bool result = !!weapl;
-	result |= d20Sys.d20Query(critter, DK_QUE_Can_Shield_Bash);
+	result |= (d20Sys.d20Query(critter, DK_QUE_Can_Shield_Bash) != 0);
 	result |= inventory.IsDoubleWeapon(weapr);
 
 	return result;

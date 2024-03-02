@@ -397,7 +397,7 @@ void RadialMenus::AssignMenu(objHndl handle)
 {
 	auto radMenu = (RadialMenu*)GetForObj(handle);
 	if (radMenu) {
-		for (auto i = 0u; i < radMenu->nodeCount; ++i) {
+		for (int i = 0; i < radMenu->nodeCount; ++i) {
 			auto &node = radMenu->nodes[i];
 			if (node.entry.flags & (int)RadialMenuEntryFlags::HasText) {
 				logger->debug("AssignMenu: \t Freeing {}", i);

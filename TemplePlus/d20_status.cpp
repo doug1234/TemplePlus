@@ -324,7 +324,7 @@ void D20StatusSystem::initItemConditions(objHndl objHnd)
 					auto monsterCondId = condArray[i]; //conds.GetByName("Tripping Bite");
 					auto monsterCond = conds.GetById(monsterCondId); // this should be assured due to check in proto parser for valid conds (protos.cpp)
 					if (!monsterCond) continue;
-					for (auto j = 0; j < monsterCond->numArgs; ++j) {
+					for (auto j = 0u; j < monsterCond->numArgs; ++j) {
 						condArgs[j] = condArgArray[argIdx++];
 					}
 

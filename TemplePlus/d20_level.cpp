@@ -47,8 +47,8 @@ public:
 		});
 
 		replaceFunction<int(__cdecl)(int)>(0x100802E0, [](int lvl)->int {
-				if (lvl > config.maxLevel+1) {
-					lvl = config.maxLevel+1;
+				if (lvl > static_cast<int>(config.maxLevel+1)) {
+					lvl = static_cast<int>(config.maxLevel+1);
 				}
 				return d20LevelSys.GetXpRequireForLevel(lvl);
 			});

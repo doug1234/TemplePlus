@@ -192,14 +192,14 @@ SectorList* LegacySectorSystem::BuildSectorList(TileRect* tileRect){
 			entry->next = prevEntry; //pops the head node of sectorList
 			result = entry;
 			locXY loc;
-			loc.locy = ys[i_y];
-			loc.locx = xs[i_x];
+			loc.locy = static_cast<uint32_t>(ys[i_y]);
+			loc.locx = static_cast<uint32_t>(xs[i_x]);
 			entry->cornerTile = loc;
 			SectorLoc secLoc;
 			secLoc.GetFromLoc(loc);
 			entry->sector = secLoc;
-			entry->extent.locx = xs[i_x + 1] - xs[i_x];
-			entry->extent.locy = ys[i_y + 1] - ys[i_y];
+			entry->extent.locx = static_cast<uint32_t>(xs[i_x + 1] - xs[i_x]);
+			entry->extent.locy = static_cast<uint32_t>(ys[i_y + 1] - ys[i_y]);
 			prevEntry = entry;
 			entry = sectorList;
 			
@@ -333,7 +333,7 @@ BOOL LegacySectorSystem::SectorLoadObjects(SectorObjects* secObjs, TioFile* file
 		try{
 		 handle = objSystem->LoadFromFile(file);
 		}
-		catch ( TempleException &e) {
+		catch ( TempleException &) {
 			break;
 		}
 		if ((int64_t)sectorLoc.raw!= -1){

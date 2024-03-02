@@ -751,7 +751,7 @@ public:
 		orgSelectPoolCharMsg = replaceFunction<BOOL(LgcyWidgetId, TigMsg*)>(0x10165620, [](LgcyWidgetId widId, TigMsg* msg){
 			auto result = orgSelectPoolCharMsg(widId, msg);
 			if (result){
-				if (party.GroupPCsLen() >= uiSystems->GetPccPortrait().pcPortraitSlotCount){
+				if (static_cast<int>(party.GroupPCsLen()) >= uiSystems->GetPccPortrait().pcPortraitSlotCount){
 					uiSystems->GetPartyPool().SetAddRemoveBtnState(LgcyButtonState::Disabled);
 				}
 			}
@@ -772,7 +772,7 @@ public:
 		replaceFunction<void()>(0x10163150, []() {
 			auto N = party.GroupPCsLen();
 			auto &pccIdx = *uiSystems->GetPccPortrait().pcCreationIdx;
-			if (pccIdx >= 0 && pccIdx < N){
+			if (pccIdx >= 0 && pccIdx < static_cast<int>(N)){
 				auto pc = party.GroupPCsGetMemberN(pccIdx);
 				party.ObjRemoveFromAllGroupArrays(pc);
 				// set button state...

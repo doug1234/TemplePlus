@@ -999,7 +999,8 @@ ActionErrorCode LegacyD20System::GlobD20ActnSetTarget(objHndl handle, LocAndOffs
 				globD20Action->d20ATarget = handle;
 			}
 			static auto getAnimPathDistanceEstimate = temple::GetRef<double(__cdecl)(objHndl, locXY, int, float)>(0x100B4830);
-			globD20Action->distTraversed = getAnimPathDistanceEstimate(globD20Action->d20APerformer, globD20Action->destLoc.location, 0, 0.0f);
+			globD20Action->distTraversed = static_cast<float>(getAnimPathDistanceEstimate(globD20Action->d20APerformer, 
+				globD20Action->destLoc.location, 0, 0.0f));
 		}
 		break;
 	case D20TargetClassification::D20TC_SingleExcSelf:
@@ -2073,8 +2074,8 @@ BOOL D20ActionCallbacks::ActionFrameRangedAttack(D20Actn* d20a)
 	
 	if (!(d20a->d20Caf & D20CAF_HIT))
 	{
-		locAndOffOut.off_x = (double)rngSys.GetInt(-30, 30);
-		locAndOffOut.off_y = (double)rngSys.GetInt(-30, 30);
+		locAndOffOut.off_x = static_cast<float>(rngSys.GetInt(-30, 30));
+		locAndOffOut.off_y = static_cast<float>(rngSys.GetInt(-30, 30));
 		projectileTgt = objHndl::null;
 		locSys.RegularizeLoc(&locAndOffOut);
 	}
@@ -2195,7 +2196,7 @@ BOOL D20ActionCallbacks::ActionFrameSpell(D20Actn * d20a) {
 		pkt.projectileCount = pkt.targetCount;
 		logger->trace("\t\t\t multi projectile; initial tgt count {}", pkt.targetCount);
 
-		for (auto i = 0; i < pkt.targetCount; ++i) {
+		for (auto i = 0u; i < pkt.targetCount; ++i) {
 			auto tgtHandle = pkt.targetListHandles[i];
 			auto projHandle = combatSys.CreateProjectileAndThrow(origin, projectileProto, destLoc, offx, offy, d20a->d20APerformer, tgtHandle);
 			// todo: very handling of null projHandle (added some checks in Temple+, might not be enough)
@@ -2254,7 +2255,7 @@ BOOL D20ActionCallbacks::ActionFrameSpell(D20Actn * d20a) {
 			d20a->d20Caf |= D20CAF_NEED_PROJECTILE_HIT;
 		}
 		if (pkt.targetCount > 0) {
-			for (auto i = 0; i < pkt.targetCount; ++i) {
+			for (auto i = 0u; i < pkt.targetCount; ++i) {
 				auto tgtHandle = pkt.targetListHandles[i];
 				auto tgtObj = objSystem->GetObject(tgtHandle);
 				if (!tgtObj) continue;
@@ -2282,7 +2283,7 @@ BOOL D20ActionCallbacks::ActionFrameSpell(D20Actn * d20a) {
 	}
 
 	
-	for (auto i=0; i < finalTargets.size() && i < MAX_SPELL_TARGETS; i++){
+	for (auto i=0; i < static_cast<int>(finalTargets.size()) && i < MAX_SPELL_TARGETS; i++){
 		pkt.targetListHandles[i] = finalTargets[i];
 	}
 	// clear the rest
@@ -2510,8 +2511,8 @@ ActionErrorCode D20ActionCallbacks::ActionCheckStdRangedAttack(D20Actn * d20a, T
 		auto tgtRadiusInch = objects.GetRadius(tgt);
 		constexpr XMFLOAT2 offVecs[4] = {
 			{1.0f, 0.0f},
-			{M_SQRT1_2, M_SQRT1_2},
-			{-M_SQRT1_2, M_SQRT1_2},
+			{static_cast<float>(M_SQRT1_2), static_cast<float>(M_SQRT1_2)},
+			{-static_cast<float>(M_SQRT1_2), static_cast<float>(M_SQRT1_2)},
 			{-1.0f, 0.0f},
 		};
 
@@ -2898,8 +2899,8 @@ ActionErrorCode D20ActionCallbacks::LocationCheckStdAttack(D20Actn* d20a, TurnBa
 		auto tgtRadiusInch = objects.GetRadius(tgt);
 		constexpr XMFLOAT2 offVecs[4] = {
 			{1.0f, 0.0f},
-			{M_SQRT1_2, M_SQRT1_2},
-			{-M_SQRT1_2, M_SQRT1_2},
+			{static_cast<float>(M_SQRT1_2), static_cast<float>(M_SQRT1_2)},
+			{-static_cast<float>(M_SQRT1_2), static_cast<float>(M_SQRT1_2)},
 			{-1.0f, 0.0f},
 		};
 
@@ -3866,7 +3867,7 @@ ActionErrorCode D20ActionCallbacks::AddToStandardAttack(D20Actn * d20a, ActnSeq 
 			max( 0.0f, minReach + locSys.InchesToFeet(INCH_PER_SUBTILE / 2)) 
 			: 0.0f;
 		actSeqSys.MoveSequenceParse(&d20aCopy, actSeq, tbStat, 
-			polearmDonutReach ? distToTgtMin : 0.0, reach, 1);
+			polearmDonutReach ? distToTgtMin : 0.0f, reach, 1);
 	}
 
 	if (actSeqSys.TurnBasedStatusUpdate(&tbStatCopy, &d20aCopy) != AEC_OK){ // bug??

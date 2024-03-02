@@ -17,7 +17,7 @@ void InfiniData::ReadChitin(){
 	tio_fread(&keyHeader, sizeof(ChitinKeyHeader), 1, chitin_file);
 
 	// Get biff entries (file names really)
-	for (auto i = 0; i<keyHeader.biffCount; i++) {
+	for (unsigned int i = 0; i<keyHeader.biffCount; i++) {
 		ChitinBifEntry biffTemp;
 		tio_fread(&biffTemp, sizeof(ChitinBifEntry), 1, chitin_file);
 		biffEntries.push_back({ biffTemp });
@@ -26,7 +26,7 @@ void InfiniData::ReadChitin(){
 	auto curPos = tio_ftell(chitin_file);
 
 	// get the BIF file names
-	for (auto i = 0; i<keyHeader.biffCount; i++) {
+	for (unsigned int i = 0; i<keyHeader.biffCount; i++) {
 		char tempBuffer[1024];
 		auto &be = biffEntries[i];
 		if (tio_ftell(chitin_file) != be.entry.biffFilenameOffset) {
@@ -46,7 +46,7 @@ void InfiniData::ReadChitin(){
 
 	tio_fseek(chitin_file, keyHeader.resourceOffset, 0);
 	curPos = tio_ftell(chitin_file);
-	for (auto i = 0; i<keyHeader.resourceCount; i++) {
+	for (unsigned int i = 0; i<keyHeader.resourceCount; i++) {
 		ChitinResEntry resTemp;
 		tio_fread(&resTemp, sizeof(ChitinResEntry), 1, chitin_file);
 		resKeyEntries.push_back(resTemp);
@@ -67,9 +67,6 @@ void InfiniData::ReadChitin(){
 }
 
 void InfiniData::ReadBifFiles(){
-
-	uint32_t curPos;
-
 	TioFileList fl;
 	tio_filelist_create(&fl, "data/*.BIF");
 
@@ -135,7 +132,7 @@ void InfiniData::ReadBif( std::vector<uint8_t> &bifBytes){
 	// read file entries
 	bytePtr = bifHeader.fileEntriesOff;
 
-	for (auto j = 0; j < bifHeader.fileCount; j++) {
+	for (unsigned int j = 0; j < bifHeader.fileCount; j++) {
 		BiffFileEntry fe;
 
 		byteSize = sizeof(BiffFileEntry);
@@ -144,7 +141,7 @@ void InfiniData::ReadBif( std::vector<uint8_t> &bifBytes){
 	}
 
 	// read tile entries 
-	for (auto j = 0; j < bifHeader.tilesetCount; j++) {
+	for (unsigned int j = 0; j < bifHeader.tilesetCount; j++) {
 		BiffTileEntry te;
 
 		byteSize = sizeof(BiffTileEntry);
@@ -153,14 +150,14 @@ void InfiniData::ReadBif( std::vector<uint8_t> &bifBytes){
 	}
 
 	// read the file data
-	for (auto j = 0; j < bifHeader.fileCount; j++) {
+	for (unsigned int j = 0; j < bifHeader.fileCount; j++) {
 		auto &fe = bifC.files[j];
 		bytePtr = fe.dataOffset;
 		// todo
 	}
 	
 	// read the tile data
-	for (auto i = 0; i < bifHeader.tilesetCount; i++) {
+	for (unsigned int i = 0; i < bifHeader.tilesetCount; i++) {
 		auto &te = bifC.tiles[i];
 		bytePtr = te.dataOffset;
 
@@ -169,7 +166,7 @@ void InfiniData::ReadBif( std::vector<uint8_t> &bifBytes){
 
 		TileData *tiledata = (TileData *)(&bifBytes[bytePtr]);
 
-		for (auto j = 0; j < tileCount; j++){
+		for (unsigned int j = 0; j < tileCount; j++){
 			IeBitmapFromTile bm(*tiledata);
 			
 			string fname(fmt::format("AR{}.bmp", j));
@@ -238,7 +235,7 @@ void InfiniData::ReadBifcV10(std::vector<uint8_t>& bifBytes){
 	auto uncompDataCount = 0;
 	
 	// read compressed blocks
-	while (bytePtr < bifBytes.size()){
+	while (bytePtr < static_cast<int>(bifBytes.size())){
 		uint32_t decompressedBlockSize = 0;
 		uint32_t compressedBlockSize = 0;
 

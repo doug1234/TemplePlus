@@ -980,7 +980,7 @@ void UiItemCreation::CraftScrollWandPotionSetItemSpellData(objHndl objHndItem, o
 		for (idx = 0; baseDescr + idx < pos; ++idx) {
 			newName[idx] = baseDescr[idx];
 		}
-		for (auto i=0; i < strlen(spellName); ++i) {
+		for (size_t i=0; i < strlen(spellName); ++i) {
 			newName[idx+i] = spellName[i];
 		}
 
@@ -2625,13 +2625,13 @@ void UiItemCreation::ButtonStateInit(int wndId){
 
 	itemCreationResourceCheckResults = new bool[itemCount];
 	if (itemCreationType == ItemCreationType::ScribeScroll) {
-		for (int i = 0u; i < itemCount; ++i) {
+		for (auto i = 0u; i < itemCount; ++i) {
 			auto spellEnum = scribeScrollSpells[i];
 			itemCreationResourceCheckResults[i] = CreateItemResourceCheck(itemCreationCrafter, objHndl::null, spellEnum);
 		}
 	}
 	else {
-		for (int i = 0u; i < itemCount; i++)
+		for (auto i = 0u; i < itemCount; i++)
 		{
 			auto itemHandle = craftedItemHandles[itemCreationType][i];
 			if (itemHandle) {
@@ -2641,7 +2641,7 @@ void UiItemCreation::ButtonStateInit(int wndId){
 	}
 	
 	mScribedScrollSpell = 0;
-	if (craftingItemIdx >= 0 && craftingItemIdx < itemCount){
+	if (craftingItemIdx >= 0 && craftingItemIdx < static_cast<int>(itemCount)){
 		if (itemCreationType == ItemCreationType::ScribeScroll) {
 			mScribedScrollSpell = scribeScrollSpells[craftingItemIdx];
 		}
@@ -2996,7 +2996,7 @@ void UiItemCreation::CreateItemFinalize(objHndl crafter, objHndl item){
 
 			// refresh the resource checks
 			if (itemCreationType == ItemCreationType::ScribeScroll) {
-				for (int i = 0; i < numItemsCrafting[itemCreationType]; i++) {
+				for (auto i = 0u; i < numItemsCrafting[itemCreationType]; i++) {
 					auto protoHandle = craftedItemHandles[itemCreationType][i];
 					auto spellEnum = scribeScrollSpells[i];
 					if (protoHandle) {
@@ -3005,14 +3005,14 @@ void UiItemCreation::CreateItemFinalize(objHndl crafter, objHndl item){
 				}
 			}
 			else {
-				for (int i = 0; i < numItemsCrafting[itemCreationType]; i++) {
+				for (auto i = 0u; i < numItemsCrafting[itemCreationType]; i++) {
 					auto protoHandle = craftedItemHandles[itemCreationType][i];
 					if (protoHandle)
 						itemCreationResourceCheckResults[i] = CreateItemResourceCheck(crafter, protoHandle);
 				}
 			}
 			
-			if (craftingItemIdx >= 0 && craftingItemIdx < numItemsCrafting[itemCreationType]) {
+			if (craftingItemIdx >= 0 && craftingItemIdx < static_cast<int>(numItemsCrafting[itemCreationType])) {
 				auto createBtnId = mItemCreationCreateBtnId; //temple::GetRef<int>(0x10BED8B0);
 				if (CreateItemResourceCheck(crafter, item, mScribedScrollSpell)) {
 					uiManager->SetButtonState(createBtnId, LgcyButtonState::Normal);

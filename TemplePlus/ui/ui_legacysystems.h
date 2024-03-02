@@ -157,7 +157,7 @@ public:
     const std::string &GetName() const override;
 };
 
-class UiPromptListEntry;
+struct UiPromptListEntry;
 class UiPopup : public UiSystem {
 	friend class UiPopupReplacement;
 public:

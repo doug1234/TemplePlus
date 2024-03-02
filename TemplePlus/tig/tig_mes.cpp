@@ -43,7 +43,7 @@ void MesFuncs::AddToMap(MesHandle openedMesHandle, std::map<int, std::string>& m
 		MesLine line;
 		mesFuncs.ReadLineDirect(mh, i, &line);
 		mesMap[line.key] = line.value;
-		if (highestKey && *highestKey < line.key)
+		if (highestKey && *highestKey < static_cast<int>(line.key))
 			*highestKey = line.key;
 	}
 }
@@ -121,7 +121,7 @@ void MesFuncHooks::apply()
 		auto extDirPat = baseDir + "_ext\\*.mes";
 		TioFileList flist;
 		tio_filelist_create(&flist, extDirPat.c_str());
-		for (auto i = 0u; i < flist.count; ++i) {
+		for (auto i = 0u; i < static_cast<unsigned int>(flist.count); ++i) {
 			auto combinedFname = fmt::format("{}_ext\\{}", baseDir, flist.files[i].name);
 			MesHandle tmp;
 			if (orgOpen(combinedFname.c_str(), &tmp)) {
@@ -185,7 +185,7 @@ void MergeContents(MesHandle tgt, MesHandle src) {
 		for (auto j = tgtPos; j < mes->numLines; ++j) {
 			tgtMesLine = &mes->lines[j];
 			tgtKey = tgtMesLine->key;
-			if (srcKey > tgtKey) {
+			if (static_cast<int>(srcKey) > tgtKey) {
 				tgtPos++;
 				continue;
 			}
@@ -214,7 +214,7 @@ void MergeContents(MesHandle tgt, MesHandle src) {
 	mes->lines = linesExt;
 	
 	auto newMesLinesStart = &mes->lines[mes->numLines];
-	for (auto i = 0; i < indicesToPush.size(); ++i) {
+	for (size_t i = 0; i < indicesToPush.size(); ++i) {
 
 		auto indToPush = indicesToPush[i];
 		MesLine* srcMesLine = &mes2->lines[indToPush];

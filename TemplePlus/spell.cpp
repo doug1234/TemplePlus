@@ -404,16 +404,16 @@ int SpellEntry::GetLowestSpellLevel(uint32_t spellEnumIn)
 	const auto spExtFind = spellSys.mSpellEntryExt.find(spellEnum);
 	if (spExtFind != spellSys.mSpellEntryExt.end()) {
 		for (auto it : spExtFind->second.levelSpecs) {
-			if (it.slotLevel < level) {
-				level = it.slotLevel;
+			if (static_cast<int>(it.slotLevel) < level) {
+				level = static_cast<int>(it.slotLevel);
 			}
 		}
 	}
 
 	for (auto i = 0u; i < this->spellLvlsNum; i++) {
 		const auto& spec = this->spellLvls[i];
-		if (spec.slotLevel < level) {
-			level = spec.slotLevel;
+		if (static_cast<int>(spec.slotLevel) < level) {
+			level = static_cast<int>(spec.slotLevel);
 		}
 	}
 
@@ -930,7 +930,7 @@ uint32_t LegacySpellSystem::ConfigSpellTargetting(PickerArgs* args, SpellPacketB
 			if (!args->IsModeTargetFlagSet(UiPickerType::OnceMulti)) {
 				N = MAX_SPELL_TARGETS;
 			}
-			for (; spPkt->targetCount < args->maxTargets && spPkt->targetCount < N; spPkt->targetCount++) {
+			for (; static_cast<int>(spPkt->targetCount) < args->maxTargets && static_cast<int>(spPkt->targetCount) < N; spPkt->targetCount++) {
 				spPkt->targetListHandles[spPkt->targetCount] = args->result.handle;
 			}
 		}
@@ -955,7 +955,7 @@ uint32_t LegacySpellSystem::ConfigSpellTargetting(PickerArgs* args, SpellPacketB
 			}
 			// else apply the rest of the targeting to the last object
 			else if (args->IsBaseModeTarget(UiPickerType::Multi) && !args->IsModeTargetFlagSet(UiPickerType::OnceMulti)) {
-				while (spPkt->targetCount < args->maxTargets) {
+				while (static_cast<int>(spPkt->targetCount) < args->maxTargets) {
 					spPkt->targetListHandles[spPkt->targetCount++] = objNode->handle;
 				}
 				objNode = nullptr;
@@ -1678,7 +1678,7 @@ void LegacySpellSystem::JammedSpellEnd(int spellId)
 	}
 	
 	 
-	for (auto i = 0; i < pkt.targetCount; ++i) {
+	for (uint32_t i = 0; i < pkt.targetCount; ++i) {
 		auto tgt = pkt.targetListHandles[i];
 		if (!objSystem->IsValidHandle(tgt))
 			continue;
@@ -3553,7 +3553,7 @@ bool SpellPacketBody::RemoveObjFromTargetList(const objHndl& handle){
 	}
 	
 	// remove the particle ID
-	if (idx < targetCount-1)
+	if (idx < static_cast<int>(targetCount)-1)
 		memcpy(&targetListPartsysIds[idx], &targetListPartsysIds[idx + 1], sizeof(int)*(targetCount - idx));
 	targetListPartsysIds[targetCount - 1] = 0;
 

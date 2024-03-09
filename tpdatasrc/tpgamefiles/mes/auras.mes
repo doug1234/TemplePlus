@@ -1,0 +1,55 @@
+// Aura List
+// Used by Marshal, Dragon Shaman and Draconic Aura Feats
+
+// Marshal Auras
+// 1-15 Minor Auras
+// 16-22 Major Auras
+
+{1}{Accurate Strike}
+{2}{Art of War}
+{3}{Demand Fortitude}
+{4}{Determined Caster}
+{5}{Force of Will}
+{6}{Master of Opportunity}
+{7}{Master of Tactics}
+{8}{Motivate Charisma}
+{9}{Motivate Constitution}
+{10}{Motivate Dexterity}
+{11}{Motivate Intelligence}
+{12}{Motivate Strength}
+{13}{Motivate Wisdom}
+{14}{Over the Top}
+{15}{Watchful Eye}
+{16}{Hardy Soldiers}
+{17}{Motivate Ardor}
+{18}{Motivate Attack}
+{19}{Motivate Care}
+{20}{Motivate Urgency}
+{21}{Resilient Troops}
+{22}{Steady Hand}
+
+// Aura Tags
+// Enums are +1000
+
+{1001}{TAG_AURA_ACCURATE_STRIKE}
+{1002}{TAG_AURA_ART_OF_WAR}
+{1003}{TAG_AURA_DEMAND_FORTITUDE}
+{1004}{TAG_AURA_DETERMINED_CASTER}
+{1005}{TAG_AURA_FORCE_OF_WILL}
+{1006}{TAG_AURA_MASTER_OF_OPPORTUNITY}
+{1007}{TAG_AURA_MASTER_OF_TACTICS}
+{1008}{TAG_AURA_MOTIVATE_CHARISMA}
+{1009}{TAG_AURA_MOTIVATE_CONSTITUTION}
+{1010}{TAG_AURA_MOTIVATE_DEXTERITY}
+{1011}{TAG_AURA_MOTIVATE_INTELLIGENCE}
+{1012}{TAG_AURA_MOTIVATE_STRENGTH}
+{1013}{TAG_AURA_MOTIVATE_WISDOM}
+{1014}{TAG_AURA_OVER_THE_TOP}
+{1015}{TAG_AURA_WATCHFUL_EYE}
+{1016}{TAG_AURA_HARDY_SOLDIERS}
+{1017}{TAG_AURA_MOTIVATE_ARDOR}
+{1018}{TAG_AURA_MOTIVATE_ATTACK}
+{1019}{TAG_AURA_MOTIVATE_CARE}
+{1020}{TAG_AURA_MOTIVATE_URGENCY}
+{1021}{TAG_AURA_RESILIENT_TROOPS}
+{1022}{TAG_AURA_STEADY_HAND}

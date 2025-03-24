@@ -35,6 +35,8 @@ void Console::Render()
 
 	constexpr auto consoleWidgeFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar;
 
+	ImGui::GetIO().FontGlobalScale = config.dmGuiScale;
+
 	auto size = ImGui::GetIO().DisplaySize;
 	ImVec2 consPos(0, 0);
 	if (gameView) {
